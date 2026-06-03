@@ -1,0 +1,82 @@
+.admin-page {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+
+.admin-form,
+.admin-panel {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(12px);
+  animation: fadeSlideIn 0.35s ease both;
+}
+
+.admin-form {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+}
+
+.admin-panel {
+  overflow: hidden;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 1fr) repeat(2, auto);
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 16px;
+  transition: transform 0.24s ease, background 0.24s ease;
+}
+
+.admin-row:hover {
+  background: rgba(238, 242, 255, 0.74);
+  transform: translateX(3px);
+}
+
+.admin-row:last-child {
+  border-bottom: 0;
+}
+
+.admin-row span {
+  color: var(--text-muted);
+}
+
+.admin-row button {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.86);
+  font-weight: 800;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.admin-row button:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: rgba(99, 102, 241, 0.42);
+  box-shadow: var(--box-shadow);
+}
+
+@media (max-width: 960px) {
+  .admin-grid,
+  .admin-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form {
+    position: static;
+  }
+}

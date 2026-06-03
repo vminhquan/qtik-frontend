@@ -1,0 +1,149 @@
+.user-page {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.payment-card,
+.profile-form,
+.ticket-detail,
+.ticket-list {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--box-shadow);
+  backdrop-filter: blur(12px);
+  animation: fadeSlideIn 0.35s ease both;
+}
+
+.payment-card,
+.profile-form,
+.ticket-detail {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+}
+
+.payment-card dl,
+.ticket-detail dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.payment-card dl div,
+.ticket-detail dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.payment-card dt,
+.ticket-detail dt {
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.payment-card dd,
+.ticket-detail dd {
+  margin: 0;
+  font-weight: 900;
+}
+
+.countdown {
+  display: grid;
+  place-items: center;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(245, 243, 255, 0.95));
+  color: var(--primary-color);
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.12);
+}
+
+.countdown strong {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.countdown.urgent {
+  background: rgba(254, 242, 242, 0.94);
+  color: var(--danger-color);
+  animation: buttonPulse 1s ease-in-out infinite;
+}
+
+.ticket-list {
+  overflow: hidden;
+}
+
+.ticket-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  gap: 14px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px;
+  transition: transform 0.24s ease, background 0.24s ease;
+}
+
+.ticket-row:hover {
+  background: rgba(238, 242, 255, 0.72);
+  transform: translateX(4px);
+}
+
+.ticket-row:last-child {
+  border-bottom: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.status-pill.completed,
+.status-pill.paid {
+  background: #ecfdf5;
+  color: var(--success-color);
+}
+
+.status-pill.cancelled,
+.status-pill.expired {
+  background: #fef2f2;
+  color: var(--danger-color);
+}
+
+.ticket-detail {
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+}
+
+.profile-form label,
+.admin-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.profile-form input,
+.admin-form input,
+.admin-form select {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+@media (max-width: 720px) {
+  .ticket-row,
+  .ticket-detail {
+    grid-template-columns: 1fr;
+  }
+}

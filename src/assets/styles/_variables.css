@@ -1,0 +1,28 @@
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover: #7c3aed;
+  --primary-soft: #eef2ff;
+  --accent-color: #f59e0b;
+  --accent-soft: #fff7ed;
+  --brand-gradient: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #c084fc 100%);
+  --warm-gradient: linear-gradient(135deg, #fb923c 0%, #facc15 100%);
+  --bg-color: #f8fbff;
+  --surface-color: rgba(255, 255, 255, 0.86);
+  --surface-muted: #f4f7ff;
+  --text-color: #172033;
+  --text-muted: #64748b;
+  --border-color: rgba(148, 163, 184, 0.24);
+  --danger-color: #ef4444;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --seat-available: #e9eefb;
+  --seat-available-text: #334155;
+  --seat-selected: #6366f1;
+  --seat-held: #f59e0b;
+  --seat-sold: #ef4444;
+  --border-radius: 14px;
+  --border-radius-lg: 16px;
+  --box-shadow: 0 18px 45px rgba(79, 70, 229, 0.12), 0 8px 18px rgba(15, 23, 42, 0.08);
+  --box-shadow-hover: 0 24px 60px rgba(79, 70, 229, 0.18), 0 12px 28px rgba(15, 23, 42, 0.1);
+  --focus-ring: 0 0 0 4px rgba(99, 102, 241, 0.16);
+}

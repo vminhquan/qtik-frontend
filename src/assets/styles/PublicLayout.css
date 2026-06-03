@@ -1,0 +1,87 @@
+.public-layout {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 249, 255, 0.86) 42%, rgba(250, 245, 255, 0.88) 100%),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
+  background-size: auto, 56px 56px, 56px 56px;
+}
+
+.public-layout::before {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background:
+    linear-gradient(115deg, rgba(56, 189, 248, 0.08), transparent 34%),
+    linear-gradient(245deg, rgba(250, 204, 21, 0.08), transparent 32%),
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.62) 72%);
+}
+
+.public-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  padding: 14px 32px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
+}
+
+.public-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+}
+
+.public-brand span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--brand-gradient);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.22);
+}
+
+.public-header nav {
+  display: flex;
+  gap: 10px;
+}
+
+.public-header nav a,
+.public-nav-button {
+  border-radius: var(--border-radius);
+  border: 0;
+  padding: 9px 12px;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.public-header nav a.active,
+.public-header nav a:hover,
+.public-nav-button:hover {
+  background: var(--primary-soft);
+  color: var(--primary-color);
+}
+
+@media (max-width: 760px) {
+  .public-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .public-header nav {
+    flex-wrap: wrap;
+  }
+}

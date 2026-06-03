@@ -1,0 +1,127 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.12)),
+    var(--bg-color);
+}
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.96), rgba(14, 165, 233, 0.86));
+  color: #e2e8f0;
+  padding: 24px;
+  box-shadow: 18px 0 42px rgba(79, 70, 229, 0.12);
+}
+
+.admin-sidebar {
+  background: linear-gradient(180deg, rgba(124, 58, 237, 0.96), rgba(245, 158, 11, 0.82));
+}
+
+.admin-sidebar .app-brand-mark {
+  background: var(--warm-gradient);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 34px;
+}
+
+.app-brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+}
+
+.app-brand strong,
+.app-brand small {
+  display: block;
+}
+
+.app-brand small {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.app-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.app-nav a {
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  color: #cbd5e1;
+  font-weight: 700;
+  transition: transform 0.24s ease, background 0.24s ease, color 0.24s ease;
+}
+
+.app-nav a.active,
+.app-nav a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateX(3px);
+}
+
+.app-user {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 18px;
+}
+
+.app-user span {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.app-user button {
+  border: 0;
+  border-radius: var(--border-radius);
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 700;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.app-user button:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.app-main {
+  min-width: 0;
+  padding: 32px;
+}
+
+@media (max-width: 860px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .app-main {
+    padding: 20px;
+  }
+}

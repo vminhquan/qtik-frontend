@@ -1,0 +1,128 @@
+.register-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background:
+    linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(192, 132, 252, 0.2)),
+    var(--bg-color);
+}
+
+.register-page-box {
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(18px);
+  padding: 40px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  animation: fadeSlideIn 0.36s ease both;
+}
+
+.register-page-title {
+  margin-bottom: 24px;
+  font-size: 24px;
+}
+
+.register-page-input {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+}
+
+.register-page-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: var(--focus-ring);
+  transform: translateY(-1px);
+}
+
+.register-page-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  background: var(--brand-gradient);
+  background-size: 180% 180%;
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.2);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.register-page-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: var(--box-shadow-hover);
+  animation: gradientShift 2.2s ease infinite;
+}
+
+.register-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
+  animation: buttonPulse 1.2s ease-in-out infinite;
+}
+
+.register-page-btn:disabled::after {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: spin 0.75s linear infinite;
+}
+
+.register-page-error {
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  background: rgba(254, 242, 242, 0.92);
+  color: var(--danger-color);
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: left;
+  animation: fadeSlideIn 0.32s ease both;
+}
+
+.register-page-success {
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  background: rgba(236, 253, 245, 0.92);
+  color: var(--success-color);
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: bold;
+  animation: fadeSlideIn 0.32s ease both;
+}
+
+.register-page-link {
+  display: block;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.register-page-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.register-page-link a:hover {
+  text-decoration: underline;
+}
