@@ -14,7 +14,7 @@
   border: 1px solid var(--border-color);
   border-radius: 999px;
   padding: 7px 10px;
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--surface-strong);
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 800;
@@ -35,9 +35,9 @@
   gap: 8px;
   min-height: 150px;
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-lg);
   padding: 16px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface-color);
   color: var(--text-color);
   text-align: left;
   box-shadow: var(--box-shadow);
@@ -52,7 +52,7 @@
 }
 
 .booking-showtime-card.active {
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(245, 243, 255, 0.96));
+  background: color-mix(in srgb, var(--primary-soft) 46%, var(--surface-strong));
 }
 
 .booking-showtime-card strong {
@@ -74,7 +74,7 @@
 .booking-selected-header {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface-color);
   box-shadow: var(--box-shadow);
   backdrop-filter: blur(12px);
 }
@@ -138,8 +138,8 @@
   margin: 0 auto 36px;
   border-radius: 0 0 50% 50%;
   padding: 14px;
-  background: linear-gradient(180deg, #cbd5e1, #f8fafc);
-  color: #334155;
+  background: linear-gradient(180deg, var(--surface-muted), var(--surface-strong));
+  color: var(--text-muted);
   text-align: center;
   font-size: 12px;
   font-weight: 900;
@@ -169,7 +169,7 @@
 
 .booking-page-seat:hover:not(:disabled) {
   transform: translateY(-3px) scale(1.06);
-  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.18);
+  box-shadow: 0 10px 22px rgba(2, 132, 199, 0.18);
 }
 
 .seat-available {

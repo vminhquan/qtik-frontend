@@ -5,27 +5,33 @@
 
 .admin-grid {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 
 .admin-form,
 .admin-panel {
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  background: rgba(255, 255, 255, 0.88);
+  border-radius: var(--border-radius-xl);
+  background: var(--surface-color);
   box-shadow: var(--box-shadow);
-  backdrop-filter: blur(12px);
-  animation: fadeSlideIn 0.35s ease both;
+  backdrop-filter: var(--panel-blur);
+  animation: fadeSlideIn 0.38s ease both;
+  transition: var(--transition-ui);
 }
 
 .admin-form {
   position: sticky;
   top: 24px;
   display: grid;
-  gap: 14px;
-  padding: 20px;
+  gap: 15px;
+  padding: 22px;
+}
+
+.admin-form h2 {
+  color: var(--text-strong);
+  font-size: 22px;
 }
 
 .admin-panel {
@@ -34,16 +40,17 @@
 
 .admin-row {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(120px, 1fr) repeat(2, auto);
+  grid-template-columns: minmax(160px, 1fr) minmax(120px, 1fr) repeat(3, auto);
   gap: 12px;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  padding: 14px 16px;
-  transition: transform 0.24s ease, background 0.24s ease;
+  padding: 15px 16px;
+  transition: transform 0.24s ease, background-color 0.24s ease, box-shadow 0.24s ease;
 }
 
 .admin-row:hover {
-  background: rgba(238, 242, 255, 0.74);
+  background: color-mix(in srgb, var(--primary-soft) 50%, transparent);
+  box-shadow: inset 3px 0 0 var(--primary-color);
   transform: translateX(3px);
 }
 
@@ -51,28 +58,72 @@
   border-bottom: 0;
 }
 
+.admin-row strong {
+  color: var(--text-strong);
+}
+
 .admin-row span {
   color: var(--text-muted);
+}
+
+.admin-user-row {
+  grid-template-columns: minmax(140px, 1fr) minmax(160px, 1fr) auto auto auto auto;
+}
+
+.admin-event-row {
+  grid-template-columns: minmax(160px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr) auto auto;
+}
+
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.admin-status-pill.active {
+  border-color: color-mix(in srgb, var(--success-color) 32%, transparent);
+  background: color-mix(in srgb, var(--success-color) 12%, var(--surface-strong));
+  color: var(--success-color);
+}
+
+.admin-status-pill.inactive {
+  border-color: color-mix(in srgb, var(--danger-color) 30%, transparent);
+  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
+  color: var(--danger-color);
 }
 
 .admin-row button {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.86);
-  font-weight: 800;
-  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+  background: var(--surface-strong);
+  color: var(--text-color);
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease, color 0.24s ease;
 }
 
 .admin-row button:hover {
-  transform: translateY(-2px) scale(1.03);
-  border-color: rgba(99, 102, 241, 0.42);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary-color) 42%, var(--border-color));
+  color: var(--primary-color);
   box-shadow: var(--box-shadow);
 }
 
 @media (max-width: 960px) {
   .admin-grid,
-  .admin-row {
+  .admin-row,
+  .admin-user-row,
+  .admin-event-row {
     grid-template-columns: 1fr;
   }
 

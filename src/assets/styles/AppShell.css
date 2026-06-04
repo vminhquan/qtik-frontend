@@ -1,9 +1,9 @@
 .app-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(192, 132, 252, 0.12)),
+    linear-gradient(135deg, color-mix(in srgb, var(--primary-soft) 36%, transparent), transparent 42%),
     var(--bg-color);
 }
 
@@ -13,38 +13,47 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  border-right: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(180deg, rgba(79, 70, 229, 0.96), rgba(14, 165, 233, 0.86));
-  color: #e2e8f0;
-  padding: 24px;
-  box-shadow: 18px 0 42px rgba(79, 70, 229, 0.12);
+  border-right: 1px solid var(--border-color);
+  padding: 26px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, transparent), color-mix(in srgb, var(--surface-color) 82%, transparent)),
+    var(--bg-elevated);
+  color: var(--text-color);
+  box-shadow: 18px 0 54px rgba(15, 23, 42, 0.06);
+  backdrop-filter: var(--panel-blur);
+  transition: var(--transition-ui);
 }
 
 .admin-sidebar {
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.96), rgba(245, 158, 11, 0.82));
-}
-
-.admin-sidebar .app-brand-mark {
-  background: var(--warm-gradient);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 84%, transparent), color-mix(in srgb, var(--primary-soft) 28%, var(--surface-color))),
+    var(--bg-elevated);
 }
 
 .app-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 34px;
+  gap: 14px;
+  margin-bottom: 36px;
+  color: var(--text-strong);
 }
 
 .app-brand-mark {
   display: grid;
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   place-items: center;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  background: var(--surface-strong);
   color: #ffffff;
   font-weight: 900;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+  box-shadow: var(--box-shadow);
+  object-fit: cover;
+}
+
+.admin-sidebar .app-brand-mark {
+  background: var(--surface-strong);
 }
 
 .app-brand strong,
@@ -52,9 +61,16 @@
   display: block;
 }
 
+.app-brand strong {
+  color: var(--text-strong);
+  font-size: 18px;
+}
+
 .app-brand small {
-  color: #94a3b8;
+  margin-top: 2px;
+  color: var(--text-muted);
   font-size: 12px;
+  font-weight: 800;
 }
 
 .app-nav {
@@ -63,52 +79,59 @@
 }
 
 .app-nav a {
+  border: 1px solid transparent;
   border-radius: var(--border-radius);
   padding: 12px 14px;
-  color: #cbd5e1;
-  font-weight: 700;
-  transition: transform 0.24s ease, background 0.24s ease, color 0.24s ease;
+  color: var(--text-muted);
+  font-weight: 850;
+  transition: transform 0.24s ease, background-color 0.24s ease, color 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
 .app-nav a.active,
 .app-nav a:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  transform: translateX(3px);
+  border-color: color-mix(in srgb, var(--primary-color) 28%, transparent);
+  background: var(--primary-soft);
+  color: var(--primary-color);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-color) 10%, transparent);
+  transform: translateX(4px);
 }
 
 .app-user {
   display: grid;
   gap: 12px;
   margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--border-color);
   padding-top: 18px;
 }
 
 .app-user span {
-  color: #ffffff;
+  color: var(--text-strong);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 850;
 }
 
 .app-user button {
-  border: 0;
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  font-weight: 700;
-  transition: transform 0.25s ease, background 0.25s ease;
+  padding: 11px 12px;
+  background: var(--surface-strong);
+  color: var(--text-color);
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .app-user button:hover {
-  background: rgba(255, 255, 255, 0.28);
-  transform: translateY(-2px) scale(1.03);
+  border-color: color-mix(in srgb, var(--primary-color) 36%, var(--border-color));
+  color: var(--primary-color);
+  box-shadow: var(--box-shadow);
+  transform: translateY(-2px);
 }
 
 .app-main {
   min-width: 0;
-  padding: 32px;
+  padding: 34px;
+  animation: fadeSlideIn 0.38s ease both;
 }
 
 @media (max-width: 860px) {
@@ -122,6 +145,6 @@
   }
 
   .app-main {
-    padding: 20px;
+    padding: 22px;
   }
 }

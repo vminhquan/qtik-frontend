@@ -4,7 +4,9 @@ import { eventService } from "../api/eventService";
 import { movieService } from "../api/movieService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
+import useCurrentTime from "../hooks/useCurrentTime";
 import { getErrorMessage } from "../utils/errorHandler";
+import { isShowtimeVisible } from "../utils/showtimeHelper";
 import "../assets/styles/PublicPages.css";
 
 const normalizeList = (response) =>
@@ -41,6 +43,7 @@ const formatDateTime = (value) => {
 const getAvailableSeats = (event) =>
   event.available_seats ?? event.availableSeats ?? event.empty_seats ?? event.remaining_seats ?? event.seats_available;
 const getTotalSeats = (event) => event.total_seats ?? event.totalSeats ?? event.room?.capacity ?? event.capacity;
+const getMovieDuration = (movie) => movie?.duration || movie?.duration_minutes || movie?.runtime || movie?.runtime_minutes;
 
 const MovieDetailPage = () => {
   const { id } = useParams();
@@ -49,6 +52,7 @@ const MovieDetailPage = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const currentTime = useCurrentTime();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -76,7 +80,7 @@ const MovieDetailPage = () => {
         }
 
         if (eventResponse.status === "rejected") throw eventResponse.reason;
-        setEvents(normalizeList(eventResponse.value));
+        setEvents(normalizeList(eventResponse.value).filter((event) => isShowtimeVisible(event)));
       } catch (err) {
         setError(getErrorMessage(err, "Không thể tải lịch chiếu."));
       } finally {
@@ -88,14 +92,15 @@ const MovieDetailPage = () => {
   }, [id]);
 
   const filteredEvents = useMemo(() => {
-    if (!selectedDate) return events;
+    const visibleEvents = events.filter((event) => isShowtimeVisible(event, currentTime));
+    if (!selectedDate) return visibleEvents;
 
-    return events.filter((event) => {
+    return visibleEvents.filter((event) => {
       const start = getStartTime(event);
       if (!start) return true;
       return String(start).slice(0, 10) === selectedDate;
     });
-  }, [events, selectedDate]);
+  }, [events, selectedDate, currentTime]);
 
   if (loading && !movie) return <LoadingState label="Đang tải chi tiết phim..." />;
 
@@ -112,7 +117,7 @@ const MovieDetailPage = () => {
             <h1>{movie.title || movie.name}</h1>
             <p>{movie.description || "Nội dung phim đang được cập nhật."}</p>
             <dl className="detail-meta">
-              <div><dt>Thời lượng</dt><dd>{movie.duration || "--"} phút</dd></div>
+              <div><dt>Thời lượng</dt><dd>{getMovieDuration(movie) ? `${getMovieDuration(movie)} phút` : "Đang cập nhật"}</dd></div>
               <div><dt>Đạo diễn</dt><dd>{movie.director || "Đang cập nhật"}</dd></div>
               <div><dt>Thể loại</dt><dd>{movie.genre || "Đang cập nhật"}</dd></div>
             </dl>

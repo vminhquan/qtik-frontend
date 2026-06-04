@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import FloatingChatbot from "../components/FloatingChatbot";
+import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../hooks/useAuth";
 import "../assets/styles/PublicLayout.css";
 import icon from "/src/assets/icon.png";
@@ -33,6 +34,7 @@ const PublicLayout = () => {
           ) : (
             <NavLink to="/login">Đăng nhập</NavLink>
           )}
+          <ThemeToggle compact />
         </nav>
       </header>
       <Outlet />

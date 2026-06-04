@@ -1,5 +1,5 @@
 .user-page {
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
@@ -8,19 +8,20 @@
 .ticket-detail,
 .ticket-list {
   border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  background: rgba(255, 255, 255, 0.88);
+  border-radius: var(--border-radius-xl);
+  background: var(--surface-color);
   box-shadow: var(--box-shadow);
-  backdrop-filter: blur(12px);
-  animation: fadeSlideIn 0.35s ease both;
+  backdrop-filter: var(--panel-blur);
+  animation: fadeSlideIn 0.38s ease both;
+  transition: var(--transition-ui);
 }
 
 .payment-card,
 .profile-form,
 .ticket-detail {
   display: grid;
-  gap: 20px;
-  padding: 24px;
+  gap: 22px;
+  padding: 26px;
 }
 
 .payment-card dl,
@@ -34,31 +35,34 @@
 .ticket-detail dl div {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  gap: 18px;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 12px;
+  padding-bottom: 13px;
 }
 
 .payment-card dt,
 .ticket-detail dt {
   color: var(--text-muted);
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .payment-card dd,
 .ticket-detail dd {
   margin: 0;
+  color: var(--text-strong);
   font-weight: 900;
+  text-align: right;
 }
 
 .countdown {
   display: grid;
   place-items: center;
-  border-radius: var(--border-radius);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+  border-radius: var(--border-radius-lg);
   padding: 24px;
-  background: linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(245, 243, 255, 0.95));
+  background: color-mix(in srgb, var(--primary-soft) 54%, var(--surface-strong));
   color: var(--primary-color);
-  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .countdown strong {
@@ -67,7 +71,8 @@
 }
 
 .countdown.urgent {
-  background: rgba(254, 242, 242, 0.94);
+  border-color: color-mix(in srgb, var(--danger-color) 30%, transparent);
+  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
   color: var(--danger-color);
   animation: buttonPulse 1s ease-in-out infinite;
 }
@@ -78,16 +83,17 @@
 
 .ticket-row {
   display: grid;
-  grid-template-columns: 120px 1fr 120px;
-  gap: 14px;
+  grid-template-columns: 120px 1fr 138px;
+  gap: 16px;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
   padding: 16px;
-  transition: transform 0.24s ease, background 0.24s ease;
+  transition: transform 0.24s ease, background-color 0.24s ease, box-shadow 0.24s ease;
 }
 
 .ticket-row:hover {
-  background: rgba(238, 242, 255, 0.72);
+  background: color-mix(in srgb, var(--primary-soft) 52%, transparent);
+  box-shadow: inset 3px 0 0 var(--primary-color);
   transform: translateX(4px);
 }
 
@@ -95,12 +101,18 @@
   border-bottom: 0;
 }
 
+.ticket-row strong {
+  color: var(--text-strong);
+}
+
 .status-pill {
   display: inline-flex;
+  align-items: center;
   justify-content: center;
+  border: 1px solid var(--border-color);
   border-radius: 999px;
   padding: 6px 10px;
-  background: #f1f5f9;
+  background: var(--surface-muted);
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 900;
@@ -108,13 +120,15 @@
 
 .status-pill.completed,
 .status-pill.paid {
-  background: #ecfdf5;
+  border-color: color-mix(in srgb, var(--success-color) 30%, transparent);
+  background: color-mix(in srgb, var(--success-color) 12%, var(--surface-strong));
   color: var(--success-color);
 }
 
 .status-pill.cancelled,
 .status-pill.expired {
-  background: #fef2f2;
+  border-color: color-mix(in srgb, var(--danger-color) 30%, transparent);
+  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
   color: var(--danger-color);
 }
 
@@ -123,13 +137,18 @@
   align-items: center;
 }
 
+.ticket-detail-action {
+  grid-column: 2;
+  justify-self: start;
+}
+
 .profile-form label,
 .admin-form label {
   display: grid;
   gap: 8px;
   color: var(--text-muted);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .profile-form input,
@@ -138,12 +157,18 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--surface-strong);
+  color: var(--text-color);
 }
 
 @media (max-width: 720px) {
   .ticket-row,
   .ticket-detail {
     grid-template-columns: 1fr;
+  }
+
+  .ticket-detail-action {
+    grid-column: auto;
+    width: 100%;
   }
 }

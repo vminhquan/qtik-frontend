@@ -1,15 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { aiService } from "../api/aiService";
+import { CHAT_STORAGE_KEY } from "../constants/storageKeys";
 import { getErrorMessage } from "../utils/errorHandler";
 import "../assets/styles/Chatbot.css";
+
+const initialMessages = [
+  { role: "assistant", content: "Xin chào, tôi có thể gợi ý phim, suất chiếu và giá vé cho bạn." },
+];
+
+const getStoredMessages = () => {
+  const storedMessages = sessionStorage.getItem(CHAT_STORAGE_KEY);
+  if (!storedMessages) return initialMessages;
+
+  try {
+    const parsedMessages = JSON.parse(storedMessages);
+    return Array.isArray(parsedMessages) && parsedMessages.length > 0 ? parsedMessages : initialMessages;
+  } catch {
+    return initialMessages;
+  }
+};
 
 const FloatingChatbot = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState([
-    { role: "assistant", content: "Xin chào, tôi có thể gợi ý phim, suất chiếu và giá vé cho bạn." },
-  ]);
+  const [messages, setMessages] = useState(getStoredMessages);
+
+  useEffect(() => {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,7 +41,7 @@ const FloatingChatbot = () => {
 
     try {
       const response = await aiService.sendMessage({ message: content });
-      const answer = response?.answer || response?.message || response?.data?.answer || "Tôi đã ghi nhận câu hỏi của bạn.";
+      const answer = response?.reply || response?.answer || response?.message || response?.data?.answer || "Tôi đã ghi nhận câu hỏi của bạn.";
       setMessages((prev) => [...prev, { role: "assistant", content: answer }]);
     } catch (err) {
       setMessages((prev) => [...prev, { role: "assistant", content: getErrorMessage(err, "AI hiện chưa phản hồi được.") }]);
@@ -36,7 +55,12 @@ const FloatingChatbot = () => {
       {open && (
         <section className="chatbot-panel" aria-label="QTIK AI assistant">
           <header>
-            <strong>QTIK AI</strong>
+            <div className="chatbot-title">
+              <span className="chatbot-title-icon" aria-hidden="true">✦</span>
+              <div>
+                <strong>QTIK AI</strong>  
+              </div>
+            </div>
             <button type="button" onClick={() => setOpen(false)}>Đóng</button>
           </header>
           <div className="chatbot-messages">
@@ -53,13 +77,20 @@ const FloatingChatbot = () => {
               onChange={(event) => setMessage(event.target.value)}
               placeholder="Hôm nay có phim gì?"
             />
-            <button type="submit">Gửi</button>
+            <button type="submit" disabled={loading}>Gửi</button>
           </form>
         </section>
       )}
 
-      <button className="chatbot-toggle" type="button" onClick={() => setOpen((prev) => !prev)}>
-        AI
+      <button
+        className={open ? "chatbot-toggle open" : "chatbot-toggle"}
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-label="Mở QTIK AI"
+      >
+        <span className="chatbot-toggle-core" aria-hidden="true">
+          <span className="chatbot-toggle-dot" />
+        </span>
       </button>
     </div>
   );

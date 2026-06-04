@@ -4,8 +4,10 @@ import { eventService } from "../api/eventService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
 import Pagination from "../components/Pagination";
+import useCurrentTime from "../hooks/useCurrentTime";
 import useMovies from "../hooks/useMovies";
 import { getErrorMessage } from "../utils/errorHandler";
+import { isShowtimeVisible } from "../utils/showtimeHelper";
 import heroImage from "../assets/hero.png";
 import "../assets/styles/PublicPages.css";
 
@@ -38,6 +40,11 @@ const getMoviePoster = (movie) => movie?.poster_url || movie?.posterUrl || movie
 const getMovieDescription = (movie) =>
   movie?.description || movie?.overview || movie?.summary || movie?.content || movie?.synopsis || "";
 const getReleaseDate = (movie) => movie?.release_date || movie?.releaseDate || movie?.premiere_date || movie?.premiereDate;
+const getMovieDuration = (movie) => movie?.duration || movie?.duration_minutes || movie?.runtime || movie?.runtime_minutes;
+const formatMovieDuration = (movie) => {
+  const duration = getMovieDuration(movie);
+  return duration ? `${duration} phút` : "Thời lượng đang cập nhật";
+};
 const formatReleaseDate = (value) => {
   if (!value) return "Ngày khởi chiếu đang cập nhật";
   const date = new Date(value);
@@ -61,6 +68,7 @@ const HomePage = () => {
   const [showtimeError, setShowtimeError] = useState("");
   const [heroIndex, setHeroIndex] = useState(0);
   const [dragStartX, setDragStartX] = useState(null);
+  const currentTime = useCurrentTime();
   const heroMovies = useMemo(() => movies.slice(0, 6), [movies]);
   const safeHeroIndex = heroMovies.length ? heroIndex % heroMovies.length : 0;
   const heroMovie = heroMovies[safeHeroIndex] || movies[0];
@@ -99,7 +107,7 @@ const HomePage = () => {
       );
       const nextShowtimes = normalizeList(response).filter((event) => {
         const eventMovieId = getEventFilmId(event);
-        return !eventMovieId || String(eventMovieId) === String(movieId);
+        return (!eventMovieId || String(eventMovieId) === String(movieId)) && isShowtimeVisible(event);
       });
       setShowtimes(nextShowtimes);
     } catch (err) {
@@ -115,6 +123,10 @@ const HomePage = () => {
     loadShowtimes(heroMovie);
     document.getElementById("movie-catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const visibleShowtimes = useMemo(
+    () => showtimes.filter((event) => isShowtimeVisible(event, currentTime)),
+    [showtimes, currentTime]
+  );
 
   return (
     <main className="home-page">
@@ -129,6 +141,7 @@ const HomePage = () => {
         <div className="home-hero-content" key={getMovieId(heroMovie) || "hero-content"}>
           <span className="page-kicker">{formatReleaseDate(getReleaseDate(heroMovie))}</span>
           <h1>{heroMovie ? movieTitle(heroMovie) : "QTIK Cinema"}</h1>
+          <small className="movie-duration-label">{heroMovie ? formatMovieDuration(heroMovie) : "Thời lượng đang cập nhật"}</small>
           <p>{getMovieDescription(heroMovie) || "Mô tả phim đang được cập nhật."}</p>
           <button className="primary-button" type="button" onClick={handleHeroShowtimes} disabled={!heroMovie}>
             Chọn suất chiếu
@@ -201,7 +214,7 @@ const HomePage = () => {
                       )}
                     </div>
                     <h3>{movieTitle(movie)}</h3>
-                    <p>{movie.genre || "Đang cập nhật"}</p>
+                    <p>{movie.genre || "Đang cập nhật"} · {formatMovieDuration(movie)}</p>
                     <span className="movie-card-cta">{isSelected ? "Ẩn suất chiếu" : "Chọn suất chiếu"}</span>
                   </button>
                 </article>
@@ -216,6 +229,7 @@ const HomePage = () => {
               <div>
                 <span className="page-kicker">Suất chiếu của phim</span>
                 <h2>{movieTitle(selectedMovie)}</h2>
+                <small className="movie-duration-label">{formatMovieDuration(selectedMovie)}</small>
                 <p>{getMovieDescription(selectedMovie) || "Mô tả phim đang được cập nhật."}</p>
               </div>
               <button className="ghost-button" type="button" onClick={() => loadShowtimes(selectedMovie)}>
@@ -228,7 +242,7 @@ const HomePage = () => {
               <LoadingState label="Đang tải suất chiếu..." />
             ) : (
               <div className="movie-showtime-list">
-                {showtimes.map((event) => (
+                {visibleShowtimes.map((event) => (
                   <button
                     className="movie-showtime-option"
                     key={getEventId(event)}
@@ -243,7 +257,7 @@ const HomePage = () => {
                     </small>
                   </button>
                 ))}
-                {!showtimes.length && <p className="empty-state compact">Phim này chưa có suất chiếu.</p>}
+                {!visibleShowtimes.length && <p className="empty-state compact">Phim này chưa có suất chiếu.</p>}
               </div>
             )}
           </section>

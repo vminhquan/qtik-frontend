@@ -5,7 +5,9 @@ import { eventService } from "../api/eventService";
 import { movieService } from "../api/movieService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
+import useCurrentTime from "../hooks/useCurrentTime";
 import { getErrorMessage } from "../utils/errorHandler";
+import { isShowtimeVisible } from "../utils/showtimeHelper";
 import "../assets/styles/BookingPage.css";
 
 const seatCode = (seat) => seat.seat_code || seat.code || seat.name || `S${seat.id}`;
@@ -62,6 +64,7 @@ const BookingPage = ({ eventId = null }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const currentTime = useCurrentTime();
   const navigate = useNavigate();
 
   const fetchEvents = useCallback(async () => {
@@ -88,7 +91,7 @@ const BookingPage = ({ eventId = null }) => {
       }
 
       const response = eventResponse.value;
-      setEvents(normalizeList(response));
+      setEvents(normalizeList(response).filter((item) => isShowtimeVisible(item)));
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải danh sách suất chiếu."));
     } finally {
@@ -169,6 +172,14 @@ const BookingPage = ({ eventId = null }) => {
   const heldSeatCount = useMemo(
     () => seats.filter((seat) => seatStatus(seat) === "held").length,
     [seats]
+  );
+  const visibleEvents = useMemo(
+    () => events.filter((item) => isShowtimeVisible(item, currentTime)),
+    [events, currentTime]
+  );
+  const selectedEventVisible = useMemo(
+    () => !event || isShowtimeVisible(event, currentTime),
+    [event, currentTime]
   );
 
   const selectEvent = (nextEvent) => {
@@ -274,7 +285,7 @@ const BookingPage = ({ eventId = null }) => {
           <LoadingState label="Đang tải danh sách suất chiếu..." />
         ) : (
           <div className="booking-showtime-grid">
-            {events.map((item) => {
+            {visibleEvents.map((item) => {
               const itemId = getEventId(item);
               const isActive = String(itemId) === String(selectedEventId);
 
@@ -296,7 +307,7 @@ const BookingPage = ({ eventId = null }) => {
                 </button>
               );
             })}
-            {!events.length && <p className="empty-state">Chưa có suất chiếu nào.</p>}
+            {!visibleEvents.length && <p className="empty-state">Chưa có suất chiếu nào.</p>}
           </div>
         )}
       </section>
@@ -309,7 +320,7 @@ const BookingPage = ({ eventId = null }) => {
         </div>
       )}
 
-      {selectedEventId && (
+      {selectedEventId && selectedEventVisible && (
         <header className="booking-selected-header">
           <div>
             <span className="page-kicker">Selected Showtime</span>
@@ -327,9 +338,16 @@ const BookingPage = ({ eventId = null }) => {
         </header>
       )}
 
+      {selectedEventId && event && !selectedEventVisible && !loadingSeats && (
+        <div className="booking-placeholder">
+          <strong>Suất chiếu đã kết thúc</strong>
+          <span>Vui lòng chọn một suất chiếu khác còn hiệu lực.</span>
+        </div>
+      )}
+
       {loadingSeats && <LoadingState label="Đang tải sơ đồ ghế..." />}
 
-      {selectedEventId && !loadingSeats && (
+      {selectedEventId && selectedEventVisible && !loadingSeats && (
       <div className="booking-workspace">
         <div className="seat-map-panel">
           <div className="booking-page-screen">MÀN HÌNH</div>

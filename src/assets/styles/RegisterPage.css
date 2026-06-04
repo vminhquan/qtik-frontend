@@ -5,14 +5,14 @@
   min-height: 100vh;
   padding: 24px;
   background:
-    linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(192, 132, 252, 0.2)),
+    linear-gradient(135deg, color-mix(in srgb, var(--primary-soft) 50%, transparent), transparent 58%),
     var(--bg-color);
 }
 
 .register-page-box {
-  border: 1px solid rgba(255, 255, 255, 0.74);
-  background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(18px);
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  backdrop-filter: var(--panel-blur);
   padding: 40px;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow);
@@ -34,7 +34,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--surface-strong);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
 }
 
@@ -62,7 +62,7 @@
   font-weight: bold;
   cursor: pointer;
   margin-top: 10px;
-  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 12px 26px rgba(2, 132, 199, 0.2);
   transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
@@ -91,7 +91,7 @@
 .register-page-error {
   border-radius: var(--border-radius);
   padding: 12px 14px;
-  background: rgba(254, 242, 242, 0.92);
+  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
   color: var(--danger-color);
   margin-bottom: 16px;
   font-size: 14px;
@@ -102,7 +102,7 @@
 .register-page-success {
   border-radius: var(--border-radius);
   padding: 12px 14px;
-  background: rgba(236, 253, 245, 0.92);
+  background: color-mix(in srgb, var(--success-color) 11%, var(--surface-strong));
   color: var(--success-color);
   margin-bottom: 16px;
   font-size: 14px;

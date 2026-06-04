@@ -1,5 +1,7 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import FloatingChatbot from "../components/FloatingChatbot";
+import ThemeToggle from "../components/ThemeToggle";
+import { CHAT_STORAGE_KEY } from "../constants/storageKeys";
 import { useAuth } from "../hooks/useAuth";
 import { getUserDisplayName } from "../utils/userHelper";
 import "../assets/styles/AppShell.css";
@@ -11,6 +13,7 @@ const MainLayout = () => {
 
   const handleLogout = async () => {
     await logout();
+    sessionStorage.removeItem(CHAT_STORAGE_KEY);
     navigate("/", { replace: true });
   };
 
@@ -18,7 +21,7 @@ const MainLayout = () => {
     <div className="app-shell">
       <aside className="app-sidebar">
         <Link to="/booking" className="app-brand" aria-label="QTIK home">
-          <img className="app-brand-mark" src={icon}/>
+          <img className="app-brand-mark" src={icon} alt="QTIK" />
           <span>
             <strong>QTIK</strong>
             <small>Ticket OS</small>
@@ -33,6 +36,7 @@ const MainLayout = () => {
         </nav>
 
         <div className="app-user">
+          <ThemeToggle />
           <span>{getUserDisplayName(currentUser, "Tài khoản của tôi")}</span>
           <button type="button" onClick={handleLogout}>Đăng xuất</button>
         </div>

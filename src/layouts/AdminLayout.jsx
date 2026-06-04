@@ -1,4 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../hooks/useAuth";
 import { getUserDisplayName } from "../utils/userHelper";
 import "../assets/styles/AppShell.css";
@@ -34,6 +35,7 @@ const AdminLayout = () => {
         </nav>
 
         <div className="app-user">
+          <ThemeToggle />
           <span>{getUserDisplayName(currentUser, "QTIK Admin")}</span>
           <button type="button" onClick={handleLogout}>Đăng xuất</button>
         </div>
