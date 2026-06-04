@@ -38,12 +38,19 @@ const LoginPage = ({ adminMode = false }) => {
     setError("");
 
     try {
-      const response = await login(formData);
+      const scope = adminMode ? "admin" : "user";
+      const response = await login(formData, { scope });
       const role = getLoginRole(response);
 
       if (adminMode && role !== "admin") {
-        await logout();
+        await logout({ scope });
         setError("Tài khoản này không có quyền truy cập trang quản trị.");
+        return;
+      }
+
+      if (!adminMode && role === "admin") {
+        await logout({ scope });
+        setError("Tài khoản admin vui lòng đăng nhập tại cổng quản trị.");
         return;
       }
 

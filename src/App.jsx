@@ -3,11 +3,11 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import AppRoutes from "./routes/AppRoutes";
 
 const App = () => (
-  <AuthProvider>
-    <BrowserRouter>
+  <BrowserRouter>
+    <AuthProvider>
       <AppRoutes />
-    </BrowserRouter>
-  </AuthProvider>
+    </AuthProvider>
+  </BrowserRouter>
 );
 
 export default App;

@@ -1,4 +1,4 @@
-export const BASE_URL = "https://fastapi-project-6qt6.onrender.com/api";
+export const BASE_URL = "https://api.qtik.io.vn/api";
 
 export const USER_API = {
   REGISTER: "/users/register",

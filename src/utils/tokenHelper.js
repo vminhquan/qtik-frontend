@@ -1,31 +1,43 @@
-const ACCESS_TOKEN_KEY = "qtik_access_token";
-const REFRESH_TOKEN_KEY = "qtik_refresh_token";
+const TOKEN_KEYS = {
+  user: {
+    access: "qtik_access_token",
+    refresh: "qtik_refresh_token",
+  },
+  admin: {
+    access: "qtik_admin_access_token",
+    refresh: "qtik_admin_refresh_token",
+  },
+};
+
+const getTokenKeys = (scope = "user") => TOKEN_KEYS[scope] || TOKEN_KEYS.user;
 
 const storage = () => {
   if (typeof window === "undefined") return null;
   return window.localStorage;
 };
 
-export const getAccessToken = () => storage()?.getItem(ACCESS_TOKEN_KEY) || null;
+export const getAuthScopeFromPath = (pathname = "") => (pathname.startsWith("/admin") ? "admin" : "user");
 
-export const setAccessToken = (token) => {
+export const getAccessToken = (scope = "user") => storage()?.getItem(getTokenKeys(scope).access) || null;
+
+export const setAccessToken = (token, scope = "user") => {
   if (!token) return;
-  storage()?.setItem(ACCESS_TOKEN_KEY, token);
+  storage()?.setItem(getTokenKeys(scope).access, token);
 };
 
-export const getRefreshToken = () => storage()?.getItem(REFRESH_TOKEN_KEY) || null;
+export const getRefreshToken = (scope = "user") => storage()?.getItem(getTokenKeys(scope).refresh) || null;
 
-export const setRefreshToken = (token) => {
+export const setRefreshToken = (token, scope = "user") => {
   if (!token) return;
-  storage()?.setItem(REFRESH_TOKEN_KEY, token);
+  storage()?.setItem(getTokenKeys(scope).refresh, token);
 };
 
-export const removeTokens = () => {
-  storage()?.removeItem(ACCESS_TOKEN_KEY);
-  storage()?.removeItem(REFRESH_TOKEN_KEY);
+export const removeTokens = (scope = "user") => {
+  storage()?.removeItem(getTokenKeys(scope).access);
+  storage()?.removeItem(getTokenKeys(scope).refresh);
 };
 
-export const setTokens = ({ accessToken, refreshToken }) => {
-  setAccessToken(accessToken);
-  setRefreshToken(refreshToken);
+export const setTokens = ({ accessToken, refreshToken }, scope = "user") => {
+  setAccessToken(accessToken, scope);
+  setRefreshToken(refreshToken, scope);
 };

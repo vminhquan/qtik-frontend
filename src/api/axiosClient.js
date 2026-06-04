@@ -2,6 +2,7 @@ import axios from "axios";
 import { BASE_URL, USER_API } from "../constants/apiEndpoints";
 import {
   getAccessToken,
+  getAuthScopeFromPath,
   getRefreshToken,
   removeTokens,
   setAccessToken,
@@ -34,10 +35,16 @@ const extractAccessToken = (payload) =>
 const extractRefreshToken = (payload) =>
   payload?.refreshToken || payload?.refresh_token || payload?.data?.refreshToken || payload?.data?.refresh_token;
 
-const redirectToLogin = () => {
-  removeTokens();
+const getRequestScope = (config = {}) => {
+  if (config.authScope) return config.authScope;
+  if (typeof window === "undefined") return "user";
+  return getAuthScopeFromPath(window.location.pathname);
+};
+
+const redirectToLogin = (scope = "user") => {
+  removeTokens(scope);
   if (typeof window !== "undefined") {
-    const loginPath = window.location.pathname.startsWith("/admin") ? "/admin/login" : "/login";
+    const loginPath = scope === "admin" ? "/admin/login" : "/login";
     if (window.location.pathname !== loginPath) {
       window.location.assign(loginPath);
     }
@@ -51,7 +58,10 @@ axiosClient.interceptors.request.use(
       return config;
     }
 
-    const token = getAccessToken();
+    const scope = getRequestScope(config);
+    config.authScope = scope;
+
+    const token = getAccessToken(scope);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -65,6 +75,7 @@ axiosClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+    const scope = getRequestScope(originalRequest);
     const isPublicRequest = originalRequest?.skipAuth || originalRequest?.skipAuthRedirect;
     const requestUrl = originalRequest?.url || "";
     const isAuthRequest =
@@ -76,9 +87,9 @@ axiosClient.interceptors.response.use(
       return Promise.reject(normalizeApiError(error));
     }
 
-    const refreshToken = getRefreshToken();
+    const refreshToken = getRefreshToken(scope);
     if (!refreshToken) {
-      redirectToLogin();
+      redirectToLogin(scope);
       return Promise.reject(normalizeApiError(error));
     }
 
@@ -107,8 +118,8 @@ axiosClient.interceptors.response.use(
         throw new Error("Refresh token response does not contain access token.");
       }
 
-      setAccessToken(newAccessToken);
-      if (newRefreshToken) setRefreshToken(newRefreshToken);
+      setAccessToken(newAccessToken, scope);
+      if (newRefreshToken) setRefreshToken(newRefreshToken, scope);
 
       resolveRefreshQueue(null, newAccessToken);
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -116,7 +127,7 @@ axiosClient.interceptors.response.use(
       return axiosClient(originalRequest);
     } catch (refreshError) {
       resolveRefreshQueue(refreshError, null);
-      redirectToLogin();
+      redirectToLogin(scope);
       return Promise.reject(normalizeApiError(refreshError));
     } finally {
       isRefreshing = false;
