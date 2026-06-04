@@ -87,7 +87,7 @@ const LoginPage = ({ adminMode = false }) => {
             <input
               type="email"
               name="email"
-              placeholder="admin@qtik.vn"
+              placeholder="user@qtik.vn"
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
@@ -100,7 +100,7 @@ const LoginPage = ({ adminMode = false }) => {
             <input
               type="password"
               name="password"
-              placeholder="Nhập mật khẩu"
+              placeholder="Nhập mật khẩu... "
               value={formData.password}
               onChange={handleChange}
               autoComplete="current-password"
