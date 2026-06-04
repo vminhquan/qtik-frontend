@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react";
+import {
+  THEME_OPTIONS,
+  applyTheme,
+  getStoredTheme,
+  getSystemTheme,
+  storeTheme,
+} from "../utils/themeManager";
 import "../assets/styles/ThemeToggle.css";
 
-const THEME_STORAGE_KEY = "qtik_theme";
-const getStoredTheme = () => {
-  if (typeof window === "undefined") return "system";
-  const theme = localStorage.getItem(THEME_STORAGE_KEY);
-  return ["light", "dark", "system"].includes(theme) ? theme : "system";
+const getNextTheme = (theme) => {
+  const currentIndex = THEME_OPTIONS.indexOf(theme);
+  return THEME_OPTIONS[(currentIndex + 1) % THEME_OPTIONS.length] || "system";
 };
 
-const getSystemTheme = () => {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-};
-
-const applyTheme = (theme, resolvedTheme) => {
-  document.documentElement.dataset.theme = theme;
-  document.documentElement.dataset.resolvedTheme = resolvedTheme;
-  document.body.classList.toggle("dark-theme", resolvedTheme === "dark");
+const getToggleLabel = (theme, resolvedTheme) => {
+  if (theme === "system") {
+    return `Đang theo hệ điều hành (${resolvedTheme === "dark" ? "tối" : "sáng"}). Bấm để chọn giao diện sáng.`;
+  }
+  if (theme === "light") return "Đang dùng giao diện sáng. Bấm để chọn giao diện tối.";
+  return "Đang dùng giao diện tối. Bấm để quay về theo hệ điều hành.";
 };
 
 const ThemeToggle = ({ compact = false }) => {
@@ -25,28 +27,51 @@ const ThemeToggle = ({ compact = false }) => {
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
-    applyTheme(theme, resolvedTheme);
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    applyTheme(theme);
+    storeTheme(theme);
   }, [theme, resolvedTheme]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => setSystemTheme(getSystemTheme());
-    mediaQuery.addEventListener("change", handleChange);
+    const mediaQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
+    if (!mediaQuery) return undefined;
 
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+    const handleChange = () => {
+      const nextSystemTheme = getSystemTheme();
+      setSystemTheme(nextSystemTheme);
+      if (theme === "system") applyTheme("system");
+    };
 
-  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener("change", handleChange);
+    } else {
+      mediaQuery.addListener?.(handleChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener("change", handleChange);
+      } else {
+        mediaQuery.removeListener?.(handleChange);
+      }
+    };
+  }, [theme]);
+
+  const label = getToggleLabel(theme, resolvedTheme);
 
   return (
     <button
       className={compact ? "theme-toggle compact" : "theme-toggle"}
       type="button"
-      onClick={() => setTheme(nextTheme)}
-      aria-label={resolvedTheme === "dark" ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
+      onClick={() => setTheme((currentTheme) => getNextTheme(currentTheme))}
+      aria-label={label}
+      title={label}
     >
-      {resolvedTheme === "dark" ? (
+      {theme === "system" ? (
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 5.8A2.8 2.8 0 0 1 6.8 3h10.4A2.8 2.8 0 0 1 20 5.8v7.9a2.8 2.8 0 0 1-2.8 2.8H6.8A2.8 2.8 0 0 1 4 13.7V5.8Z" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M9 21h6M12 16.5V21M8 7.6h8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      ) : resolvedTheme === "dark" ? (
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M20.2 15.44A7.7 7.7 0 0 1 8.56 3.8 8.6 8.6 0 1 0 20.2 15.44Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
         </svg>

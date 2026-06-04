@@ -20,11 +20,11 @@ const LoginPage = ({ adminMode = false }) => {
 
   const requestedPath = location.state?.from?.pathname;
   const from =
-    requestedPath && requestedPath !== "/" && requestedPath !== "/login" && requestedPath !== "/admin/login"
+    adminMode && requestedPath && requestedPath !== "/" && requestedPath !== "/login" && requestedPath !== "/admin/login"
       ? requestedPath
       : adminMode
         ? "/admin/movies"
-        : "/booking";
+        : "/";
   const successMessage = location.state?.message || "";
 
   const handleChange = (event) => {
