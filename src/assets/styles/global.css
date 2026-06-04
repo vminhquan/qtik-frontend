@@ -9,22 +9,28 @@ html {
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--bg-color) 92%, #ffffff 8%) 0%, var(--bg-color) 54%, color-mix(in srgb, var(--primary-soft) 38%, var(--bg-color) 62%) 100%);
   color: var(--text-color);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
+  min-width: 320px;
   min-height: 100vh;
   margin: 0;
   color: var(--text-color);
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--bg-elevated) 34%, transparent) 0%, transparent 42%),
     var(--bg-color);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   text-rendering: optimizeLegibility;
   transition: var(--transition-ui);
 }
 
-body,
 button,
 input,
 textarea,
@@ -78,8 +84,8 @@ p {
   margin-top: 8px;
   color: var(--text-strong);
   font-size: clamp(30px, 4vw, 52px);
-  line-height: 1;
-  font-weight: 900;
+  line-height: 1.05;
+  font-weight: var(--font-weight-display);
 }
 
 .page-header p {
@@ -91,8 +97,8 @@ p {
 .page-kicker {
   color: var(--primary-color);
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -108,7 +114,7 @@ p {
   border-radius: var(--border-radius);
   padding: 0 18px;
   color: inherit;
-  font-weight: 900;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: transform 0.26s ease, box-shadow 0.26s ease, border-color 0.26s ease, background 0.26s ease, color 0.26s ease, filter 0.26s ease;
 }
@@ -147,6 +153,10 @@ p {
   opacity: 0.64;
 }
 
+#root {
+  min-height: 100vh;
+}
+
 .primary-button:disabled::after,
 .ghost-button:disabled::after {
   width: 14px;
@@ -165,7 +175,7 @@ p {
   padding: 14px 16px;
   background: color-mix(in srgb, var(--success-color) 11%, var(--surface-strong));
   color: var(--success-color);
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
   animation: fadeSlideIn 0.35s ease both;
   box-shadow: 0 14px 34px color-mix(in srgb, var(--success-color) 12%, transparent);
 }

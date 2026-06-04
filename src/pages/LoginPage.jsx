@@ -67,8 +67,8 @@ const LoginPage = ({ adminMode = false }) => {
       <section className="auth-visual">
         <div>
           <span className="auth-kicker">{adminMode ? "QTIK Back Office" : "QTIK Ticket OS"}</span>
-          <h1>{adminMode ? "Cổng quản trị dành riêng cho Admin." : "Đặt vé nhanh, quản trị rạp gọn."}</h1>
-          <p>{adminMode ? "Chỉ tài khoản có role admin mới được truy cập dashboard quản trị." : "Theo dõi phim, suất chiếu, ghế và đơn đặt vé trong một luồng làm việc rõ ràng."}</p>
+          <h1>{adminMode ? "Cổng quản trị dành riêng cho Admin." : "QTIK - ĐẶT VÉ THẦN TỐC"}</h1>
+          <p>{adminMode ? "Chỉ tài khoản có role admin mới được truy cập dashboard quản trị." : ""}</p>
         </div>
       </section>
 

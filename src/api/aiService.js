@@ -5,6 +5,4 @@ export const aiService = {
   sendMessage: (data) => axiosClient.post(AI_API.CHAT, data),
 };
 
-export const { sendMessage } = aiService;
-
 export default aiService;

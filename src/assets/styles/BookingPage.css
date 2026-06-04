@@ -1,6 +1,7 @@
 .booking-page {
   max-width: 1280px;
   margin: 0 auto;
+  padding: 32px 28px 56px;
 }
 
 .booking-event-meta {
@@ -17,7 +18,7 @@
   background: var(--surface-strong);
   color: var(--text-muted);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
 }
 
 .booking-showtimes {
@@ -62,12 +63,12 @@
 
 .booking-showtime-card span {
   color: var(--primary-color);
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
 }
 
 .booking-showtime-card small {
   color: var(--text-muted);
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
 }
 
 .booking-placeholder,
@@ -142,8 +143,8 @@
   color: var(--text-muted);
   text-align: center;
   font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.16em;
+  font-weight: var(--font-weight-display);
+  letter-spacing: 0;
 }
 
 .booking-page-grid {
@@ -163,7 +164,7 @@
   border: 0;
   border-radius: 10px 10px 15px 15px;
   font-size: 12px;
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -199,7 +200,7 @@
   justify-content: center;
   color: var(--text-muted);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: var(--font-weight-semibold);
 }
 
 .seat-legend span {
@@ -257,13 +258,13 @@
 .booking-summary dt {
   color: var(--text-muted);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
 }
 
 .booking-summary dd {
   margin: 0;
   font-size: 18px;
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
 }
 
 .booking-summary .primary-button {

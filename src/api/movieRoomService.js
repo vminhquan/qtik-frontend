@@ -9,6 +9,4 @@ export const movieRoomService = {
   deleteRoom: (id) => axiosClient.delete(ROOM_API.DETAIL(id)),
 };
 
-export const { createRoom, getRooms, getRoomById, updateRoom, deleteRoom } = movieRoomService;
-
 export default movieRoomService;

@@ -27,7 +27,7 @@
   margin-bottom: 24px;
   color: var(--text-strong);
   font-size: 28px;
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
 }
 
 .login-page-input {
@@ -48,7 +48,7 @@
   padding: 13px;
   background: var(--brand-gradient);
   color: #ffffff;
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
   cursor: pointer;
   box-shadow: 0 14px 34px color-mix(in srgb, var(--primary-color) 24%, transparent);
   transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
@@ -67,6 +67,6 @@
   background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
   color: var(--danger-color);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
   text-align: left;
 }

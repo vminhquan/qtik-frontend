@@ -9,6 +9,4 @@ export const movieService = {
   deleteMovie: (id) => axiosClient.delete(MOVIE_API.DETAIL(id)),
 };
 
-export const { createMovie, getMovies, getMovieById, updateMovie, deleteMovie } = movieService;
-
 export default movieService;

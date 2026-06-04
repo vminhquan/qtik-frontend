@@ -38,7 +38,7 @@
   align-items: center;
   gap: 11px;
   color: var(--text-strong);
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
 }
 
 .public-brand span {
@@ -54,27 +54,167 @@
 
 .public-header nav {
   display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.public-header nav a,
+.public-header nav > a,
 .public-nav-button {
   border: 1px solid transparent;
   border-radius: var(--border-radius);
   padding: 9px 12px;
   background: transparent;
   color: var(--text-muted);
-  font-weight: 850;
+  font-weight: var(--font-weight-bold);
   transition: transform 0.22s ease, background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
 }
 
-.public-header nav a.active,
-.public-header nav a:hover,
+.public-header nav > a.active,
+.public-header nav > a:hover,
 .public-nav-button:hover {
   border-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
   background: var(--primary-soft);
   color: var(--primary-color);
   transform: translateY(-1px);
+}
+
+.public-account {
+  position: relative;
+}
+
+.public-avatar-button,
+.public-account-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--brand-gradient);
+  color: #ffffff;
+  font-weight: var(--font-weight-bold);
+}
+
+.public-avatar-button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+  padding: 0;
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary-color) 18%, transparent);
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+}
+
+.public-avatar-button:hover,
+.public-avatar-button[aria-expanded="true"] {
+  transform: translateY(-1px);
+  filter: saturate(1.08);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--primary-color) 26%, transparent);
+}
+
+.public-avatar-button:focus-visible,
+.public-account-menu a:focus-visible,
+.public-account-menu button:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
+}
+
+.public-account-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  width: min(280px, calc(100vw - 32px));
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  background: color-mix(in srgb, var(--surface-strong) 94%, transparent);
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.14);
+  backdrop-filter: var(--panel-blur);
+  animation: fadeSlideIn 0.18s ease both;
+}
+
+.public-account-summary {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px;
+}
+
+.public-account-avatar {
+  width: 42px;
+  height: 42px;
+}
+
+.public-account-summary strong,
+.public-account-summary small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.public-account-summary strong {
+  color: var(--text-strong);
+  font-size: 14px;
+}
+
+.public-account-summary small {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.public-account-menu a,
+.public-account-menu button {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  padding: 12px 14px;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.public-account-menu a:hover,
+.public-account-menu button:hover {
+  background: color-mix(in srgb, var(--primary-soft) 46%, transparent);
+  color: var(--primary-color);
+  transform: none;
+}
+
+.public-account-menu .account-menu-item.is-active {
+  background: transparent;
+  color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+}
+
+.public-account-menu .account-menu-item.is-active::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 999px 999px 0;
+  background: var(--primary-color);
+  content: "";
+}
+
+.public-account-menu button {
+  border-top: 1px solid var(--border-color);
+  color: var(--danger-color);
+}
+
+.public-account-menu button.danger:hover {
+  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
+  color: var(--danger-color);
 }
 
 @media (max-width: 760px) {
@@ -86,5 +226,10 @@
 
   .public-header nav {
     flex-wrap: wrap;
+  }
+
+  .public-account-menu {
+    right: auto;
+    left: 0;
   }
 }

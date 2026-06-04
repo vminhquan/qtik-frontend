@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { authService } from "../api/authService";
 import { userService } from "../api/userService";
 import { AuthContext } from "./authContextValue";
 import {
@@ -31,6 +30,11 @@ const normalizeJwtUser = (jwtUser, fallbackEmail) => ({
 });
 
 const emptySession = { currentUser: null, isAuthenticated: false };
+const hasProfileDetails = (user) =>
+  Boolean(user?.email) &&
+  Boolean(user?.full_name || user?.fullName || user?.name) &&
+  user?.phone_number !== undefined &&
+  (user?.is_active !== undefined || user?.isActive !== undefined);
 
 const readStoredSession = (scope) => {
   const token = getAccessToken(scope);
@@ -80,7 +84,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!isAuthenticated || currentUser?.full_name || currentUser?.fullName || currentUser?.name) return;
+    if (!isAuthenticated || hasProfileDetails(currentUser)) return;
     let ignore = false;
 
     userService.getProfile({ authScope: activeScope })
@@ -105,7 +109,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       ignore = true;
     };
-  }, [activeScope, currentUser?.fullName, currentUser?.full_name, currentUser?.name, isAuthenticated]);
+  }, [activeScope, currentUser, isAuthenticated]);
 
   const login = async (credentialsOrEmail, passwordOrOptions, maybeOptions) => {
     const credentials =
@@ -115,7 +119,7 @@ export const AuthProvider = ({ children }) => {
     const options = typeof credentialsOrEmail === "string" ? maybeOptions : passwordOrOptions;
     const scope = options?.scope || activeScope;
 
-    const response = await authService.login(credentials);
+    const response = await userService.login(credentials);
     const accessToken = extractAccessToken(response);
     const refreshToken = extractRefreshToken(response);
 

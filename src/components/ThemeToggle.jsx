@@ -8,38 +8,34 @@ const getStoredTheme = () => {
   return ["light", "dark", "system"].includes(theme) ? theme : "system";
 };
 
-const getSystemTheme = () =>
-  window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+const getSystemTheme = () => {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
 
-const applyTheme = (theme) => {
-  const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
+const applyTheme = (theme, resolvedTheme) => {
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.resolvedTheme = resolvedTheme;
+  document.body.classList.toggle("dark-theme", resolvedTheme === "dark");
 };
 
 const ThemeToggle = ({ compact = false }) => {
   const [theme, setTheme] = useState(getStoredTheme);
-  const [resolvedTheme, setResolvedTheme] = useState(() => {
-    if (typeof window === "undefined") return "light";
-    return getStoredTheme() === "system" ? getSystemTheme() : getStoredTheme();
-  });
+  const [systemTheme, setSystemTheme] = useState(getSystemTheme);
+  const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
-    applyTheme(theme);
-    setResolvedTheme(theme === "system" ? getSystemTheme() : theme);
+    applyTheme(theme, resolvedTheme);
     localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme, resolvedTheme]);
 
-    if (theme !== "system") return undefined;
-
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      applyTheme("system");
-      setResolvedTheme(getSystemTheme());
-    };
+    const handleChange = () => setSystemTheme(getSystemTheme());
     mediaQuery.addEventListener("change", handleChange);
 
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
+  }, []);
 
   const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
 

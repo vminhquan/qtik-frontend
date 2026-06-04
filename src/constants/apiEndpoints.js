@@ -24,7 +24,6 @@ export const EVENT_API = {
   CREATE: "/events/",
   GET_ALL: "/events/",
   DETAIL: (eventId) => `/events/${eventId}`,
-  LEGACY_DETAIL: (eventId) => `/events/event/${eventId}`,
   SEATS: (eventId) => `/events/${eventId}/seats`,
 };
 
@@ -36,7 +35,6 @@ export const MOVIE_API = {
 
 export const BOOKING_API = {
   CREATE: "/bookings/",
-  TICKETS: "/bookings/tickets",
   MY_TICKETS: "/bookings/my-tickets",
   DETAIL: (bookingId) => `/bookings/${bookingId}`,
   PAY: (bookingId) => `/bookings/${bookingId}/pay`,
@@ -45,15 +43,4 @@ export const BOOKING_API = {
 
 export const AI_API = {
   CHAT: "/chat/",
-  CHAT_NO_SLASH: "/chat",
-};
-
-export const API_ENDPOINTS = {
-  USER: USER_API,
-  ROOM: ROOM_API,
-  EVENT: EVENT_API,
-  MOVIE: MOVIE_API,
-  FILM: MOVIE_API,
-  BOOKING: BOOKING_API,
-  AI: AI_API,
 };

@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
-import MainLayout from "../layouts/MainLayout";
 import PublicLayout from "../layouts/PublicLayout";
 import AdminBookingManagementPage from "../pages/AdminBookingManagementPage";
 import AdminEventManagementPage from "../pages/AdminEventManagementPage";
@@ -14,7 +13,7 @@ import LoginPage from "../pages/LoginPage";
 import MovieDetailPage from "../pages/MovieDetailPage";
 import MovieManagementPage from "../pages/MovieManagementPage";
 import PaymentPage from "../pages/PaymentPage";
-import ProfilePage, { TicketDetailPage, TicketsPage } from "../pages/ProfilePage";
+import ProfilePage, { ChangePasswordPage, TicketDetailPage, TicketsPage } from "../pages/ProfilePage";
 import RegisterPage from "../pages/RegisterPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import VerifyOtpPage from "../pages/VerifyOtpPage";
@@ -42,14 +41,14 @@ const AppRoutes = () => (
     <Route path="/reset-password" element={<ResetPasswordPage />} />
 
     <Route element={<ProtectedRoute />}>
-      <Route element={<MainLayout />}>
+      <Route element={<PublicLayout />}>
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/booking/:eventId" element={<BookingPageWrapper />} />
         <Route path="/payment/:bookingId" element={<PaymentPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/password" element={<ChangePasswordPage />} />
         <Route path="/profile/tickets" element={<TicketsPage />} />
         <Route path="/profile/tickets/:bookingId" element={<TicketDetailPage />} />
-
       </Route>
     </Route>
 

@@ -20,21 +20,4 @@ export const userService = {
   resendOTP: (data) => axiosClient.post(USER_API.RESEND_OTP, data, publicRequest),
 };
 
-export const {
-  register,
-  verifyOTP,
-  getUsers,
-  getUserById,
-  getProfile,
-  updateUser,
-  deleteUser,
-  updateProfile,
-  login,
-  refreshToken,
-  logout,
-  forgotPassword,
-  resetPassword,
-  resendOTP,
-} = userService;
-
 export default userService;

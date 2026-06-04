@@ -59,7 +59,7 @@
   border: none;
   border-radius: var(--border-radius);
   font-size: 16px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   margin-top: 10px;
   box-shadow: 0 12px 26px rgba(2, 132, 199, 0.2);
@@ -106,7 +106,7 @@
   color: var(--success-color);
   margin-bottom: 16px;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   animation: fadeSlideIn 0.32s ease both;
 }
 
@@ -120,7 +120,7 @@
 .register-page-link a {
   color: var(--primary-color);
   text-decoration: none;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
 }
 
 .register-page-link a:hover {

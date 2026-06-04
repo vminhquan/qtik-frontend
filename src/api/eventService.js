@@ -10,6 +10,4 @@ export const eventService = {
   getEventSeats: (id, config = {}) => axiosClient.get(EVENT_API.SEATS(id), config),
 };
 
-export const { createEvent, getEvents, getEventById, updateEvent, deleteEvent, getEventSeats } = eventService;
-
 export default eventService;

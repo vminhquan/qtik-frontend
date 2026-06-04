@@ -47,7 +47,7 @@
   border-radius: 15px;
   background: var(--surface-strong);
   color: #ffffff;
-  font-weight: 900;
+  font-weight: var(--font-weight-display);
   box-shadow: var(--box-shadow);
   object-fit: cover;
 }
@@ -70,7 +70,7 @@
   margin-top: 2px;
   color: var(--text-muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: var(--font-weight-bold);
 }
 
 .app-nav {
@@ -83,7 +83,7 @@
   border-radius: var(--border-radius);
   padding: 12px 14px;
   color: var(--text-muted);
-  font-weight: 850;
+  font-weight: var(--font-weight-bold);
   transition: transform 0.24s ease, background-color 0.24s ease, color 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
 }
 
@@ -107,7 +107,7 @@
 .app-user span {
   color: var(--text-strong);
   font-size: 14px;
-  font-weight: 850;
+  font-weight: var(--font-weight-bold);
 }
 
 .app-user button {
@@ -116,7 +116,7 @@
   padding: 11px 12px;
   background: var(--surface-strong);
   color: var(--text-color);
-  font-weight: 850;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }

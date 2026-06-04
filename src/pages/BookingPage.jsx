@@ -257,13 +257,8 @@ const BookingPage = ({ eventId = null }) => {
     <section className="booking-page">
       <header className="page-header">
         <div>
-          <span className="page-kicker">Booking Flow</span>
-          <h1>{lockedEventMode ? "Chọn ghế" : "Chọn suất chiếu"}</h1>
-          <p>
-            {lockedEventMode
-              ? "Sơ đồ ghế của suất chiếu bạn đã chọn đang hiển thị bên dưới."
-              : "Chọn phim và giờ chiếu bạn muốn, hệ thống sẽ mở sơ đồ ghế để bạn chọn chỗ và xác nhận đặt vé."}
-          </p>
+          <h1>{lockedEventMode ? "CHỌN GHẾ" : "CHỌN SUẤT CHIẾU"}</h1>
+    
         </div>
         {lockedEventMode ? (
           <button className="ghost-button" type="button" onClick={() => navigate("/booking")}>
