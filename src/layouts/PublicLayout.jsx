@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import FloatingChatbot from "../components/FloatingChatbot";
 import { useAuth } from "../hooks/useAuth";
 import "../assets/styles/PublicLayout.css";
+import icon from "/src/assets/icon.png";
 
 const PublicLayout = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
@@ -16,8 +17,8 @@ const PublicLayout = () => {
   return (
     <div className="public-layout">
       <header className="public-header">
-        <Link to="/" className="public-brand">
-          <span>Q</span>
+        <Link to="https://www.qtik.io.vn" className="public-brand">
+          <img className="app-brand-mark" src={icon}/>
           <strong>QTIK</strong>
         </Link>
         <nav>

@@ -3,6 +3,7 @@ import FloatingChatbot from "../components/FloatingChatbot";
 import { useAuth } from "../hooks/useAuth";
 import { getUserDisplayName } from "../utils/userHelper";
 import "../assets/styles/AppShell.css";
+import icon from "/src/assets/icon.png";
 
 const MainLayout = () => {
   const { currentUser, logout } = useAuth();
@@ -17,7 +18,7 @@ const MainLayout = () => {
     <div className="app-shell">
       <aside className="app-sidebar">
         <Link to="/booking" className="app-brand" aria-label="QTIK home">
-          <span className="app-brand-mark">Q</span>
+          <img className="app-brand-mark" src={icon}/>
           <span>
             <strong>QTIK</strong>
             <small>Ticket OS</small>

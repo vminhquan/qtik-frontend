@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getUserDisplayName } from "../utils/userHelper";
 import "../assets/styles/AppShell.css";
+import icon from "/src/assets/icon.png";
 
 const AdminLayout = () => {
   const { currentUser, logout } = useAuth();
@@ -16,7 +17,7 @@ const AdminLayout = () => {
     <div className="app-shell admin-shell">
       <aside className="app-sidebar admin-sidebar">
         <Link to="/admin/movies" className="app-brand" aria-label="QTIK admin home">
-          <span className="app-brand-mark">A</span>
+          <img className="app-brand-mark" src={icon}/>
           <span>
             <strong>QTIK Admin</strong>
             <small>Back Office</small>
