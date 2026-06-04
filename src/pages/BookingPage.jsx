@@ -9,7 +9,7 @@ import { getErrorMessage } from "../utils/errorHandler";
 import "../assets/styles/BookingPage.css";
 
 const seatCode = (seat) => seat.seat_code || seat.code || seat.name || `S${seat.id}`;
-const seatPrice = (seat) => Number(seat.price || seat.ticket_price || seat.amount || 0);
+const seatPrice = (seat, fallbackPrice = 0) => Number(seat.price || seat.ticket_price || seat.amount || fallbackPrice || 0);
 const seatStatus = (seat) => seat.status || (seat.is_booked ? "sold" : "available");
 const unwrapData = (response) => response?.data || response;
 const getMovieTitle = (event) =>
@@ -46,6 +46,8 @@ const getEventId = (event) => event?.id || event?._id || event?.event_id;
 const getAvailableSeats = (event) =>
   event?.available_seats ?? event?.availableSeats ?? event?.remaining_seats ?? event?.seats_available;
 const getTotalSeats = (event) => event?.total_seats ?? event?.totalSeats ?? event?.room?.capacity ?? event?.capacity;
+const getEventPrice = (event) => Number(event?.price || event?.ticket_price || event?.ticketPrice || event?.amount || 0);
+const getMovieId = (movie) => movie?.id || movie?._id || movie?.film_id;
 
 const BookingPage = ({ eventId = null }) => {
   const lockedEventMode = Boolean(eventId);
@@ -106,7 +108,21 @@ const BookingPage = ({ eventId = null }) => {
         eventService.getEventSeats(selectedEventId),
       ]);
 
-      if (eventResponse.status === "fulfilled") setEvent(unwrapData(eventResponse.value));
+      const nextEvent = eventResponse.status === "fulfilled" ? unwrapData(eventResponse.value) : null;
+      if (nextEvent) {
+        setEvent(nextEvent);
+
+        const filmId = getFilmId(nextEvent);
+        if (getMovieTitle(nextEvent) === "Phim đang chiếu" && filmId) {
+          try {
+            const movie = unwrapData(await movieService.getMovieById(filmId));
+            const movieId = getMovieId(movie) || filmId;
+            setMovieMap((prev) => ({ ...prev, [String(movieId)]: movie }));
+          } catch {
+            // Event details can still render with the fallback title if film detail is unavailable.
+          }
+        }
+      }
       if (seatsResponse.status === "rejected") throw seatsResponse.reason;
 
       const seatsPayload = unwrapData(seatsResponse.value);
@@ -137,9 +153,10 @@ const BookingPage = ({ eventId = null }) => {
     fetchSeatMap();
   }, [fetchSeatMap]);
 
+  const ticketPrice = useMemo(() => getEventPrice(event), [event]);
   const totalPrice = useMemo(
-    () => selectedSeats.reduce((sum, seat) => sum + seatPrice(seat), 0),
-    [selectedSeats]
+    () => selectedSeats.reduce((sum, seat) => sum + seatPrice(seat, ticketPrice), 0),
+    [selectedSeats, ticketPrice]
   );
   const availableSeatCount = useMemo(
     () => seats.filter((seat) => seatStatus(seat) === "available").length,

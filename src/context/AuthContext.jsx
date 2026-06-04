@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { authService } from "../api/authService";
 import { userService } from "../api/userService";
@@ -20,6 +20,7 @@ const extractRefreshToken = (payload) =>
   payload?.refreshToken || payload?.refresh_token || payload?.data?.refreshToken || payload?.data?.refresh_token;
 
 const extractUser = (payload) => payload?.user || payload?.data?.user || payload?.profile || null;
+const unwrapData = (payload) => payload?.user || payload?.data?.user || payload?.profile || payload?.data || payload;
 
 const normalizeJwtUser = (jwtUser, fallbackEmail) => ({
   id: jwtUser?.id || jwtUser?.user_id || jwtUser?.sub,
@@ -56,6 +57,55 @@ export const AuthProvider = ({ children }) => {
   const activeSession = sessions[activeScope] || emptySession;
   const { currentUser, isAuthenticated } = activeSession;
   const loading = false;
+
+  const hydrateProfile = async (scope) => {
+    try {
+      const profile = unwrapData(await userService.getProfile({ authScope: scope }));
+      setSessions((prev) => ({
+        ...prev,
+        [scope]: {
+          ...prev[scope],
+          currentUser: {
+            ...prev[scope]?.currentUser,
+            ...profile,
+            role: profile?.role || prev[scope]?.currentUser?.role || "user",
+          },
+          isAuthenticated: true,
+        },
+      }));
+      return profile;
+    } catch {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || currentUser?.full_name || currentUser?.fullName || currentUser?.name) return;
+    let ignore = false;
+
+    userService.getProfile({ authScope: activeScope })
+      .then((response) => {
+        if (ignore) return;
+        const profile = unwrapData(response);
+        setSessions((prev) => ({
+          ...prev,
+          [activeScope]: {
+            ...prev[activeScope],
+            currentUser: {
+              ...prev[activeScope]?.currentUser,
+              ...profile,
+              role: profile?.role || prev[activeScope]?.currentUser?.role || "user",
+            },
+            isAuthenticated: true,
+          },
+        }));
+      })
+      .catch(() => {});
+
+    return () => {
+      ignore = true;
+    };
+  }, [activeScope, currentUser?.fullName, currentUser?.full_name, currentUser?.name, isAuthenticated]);
 
   const login = async (credentialsOrEmail, passwordOrOptions, maybeOptions) => {
     const credentials =
@@ -96,6 +146,8 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: true,
       },
     }));
+
+    hydrateProfile(scope);
 
     return response;
   };

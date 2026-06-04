@@ -1,3 +1,9 @@
+export const getUserFullName = (user, fallback = "Tài khoản") =>
+  user?.full_name ||
+  user?.fullName ||
+  user?.name ||
+  fallback;
+
 export const getUserDisplayName = (user, fallback = "Tài khoản") =>
   user?.full_name ||
   user?.fullName ||

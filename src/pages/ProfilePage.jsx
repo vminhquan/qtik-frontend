@@ -12,6 +12,10 @@ import { getErrorMessage } from "../utils/errorHandler";
 import "../assets/styles/UserPages.css";
 
 const getBookingId = (booking) => booking.id || booking._id || booking.booking_id;
+const getProfileFormData = (user) => ({
+  full_name: user?.full_name || user?.fullName || user?.name || "",
+  phone_number: user?.phone_number || user?.phoneNumber || "",
+});
 
 export const TicketsPage = () => {
   const { bookings, page, limit, total, search, loading, error, setPage, setSearch, refetch } = useBookings();
@@ -89,12 +93,8 @@ export const TicketDetailPage = () => {
   );
 };
 
-const ProfilePage = () => {
-  const { currentUser, updateCurrentUser } = useAuth();
-  const [form, setForm] = useState({
-    full_name: currentUser?.full_name || "",
-    phone_number: currentUser?.phone_number || "",
-  });
+const ProfileForm = ({ currentUser, updateCurrentUser }) => {
+  const [form, setForm] = useState(() => getProfileFormData(currentUser));
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -117,11 +117,6 @@ const ProfilePage = () => {
   };
 
   return (
-    <section className="user-page">
-      <header className="page-header">
-        <div><span className="page-kicker">Profile</span><h1>Tài khoản của tôi</h1></div>
-      </header>
-
       <form className="profile-form" onSubmit={handleSubmit}>
         {error && <p className="auth-error">{error}</p>}
         {message && <p className="success-banner">{message}</p>}
@@ -129,6 +124,20 @@ const ProfilePage = () => {
         <label>Số điện thoại<input value={form.phone_number} onChange={(event) => setForm((prev) => ({ ...prev, phone_number: event.target.value }))} /></label>
         <button className="primary-button" disabled={saving} type="submit">{saving ? "Đang lưu..." : "Cập nhật"}</button>
       </form>
+  );
+};
+
+const ProfilePage = () => {
+  const { currentUser, updateCurrentUser } = useAuth();
+  const profileKey = `${currentUser?.id || currentUser?.email || "profile"}-${currentUser?.full_name || currentUser?.fullName || currentUser?.name || ""}`;
+
+  return (
+    <section className="user-page">
+      <header className="page-header">
+        <div><span className="page-kicker">Profile</span><h1>Tài khoản của tôi</h1></div>
+      </header>
+
+      <ProfileForm key={profileKey} currentUser={currentUser} updateCurrentUser={updateCurrentUser} />
     </section>
   );
 };
