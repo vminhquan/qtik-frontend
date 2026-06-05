@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { bookingService } from "../api/bookingService";
 import { eventService } from "../api/eventService";
 import { movieService } from "../api/movieService";
@@ -51,8 +51,11 @@ const getTotalSeats = (event) => event?.total_seats ?? event?.totalSeats ?? even
 const getEventPrice = (event) => Number(event?.price || event?.ticket_price || event?.ticketPrice || event?.amount || 0);
 const getMovieId = (movie) => movie?.id || movie?._id || movie?.film_id;
 
-const BookingPage = ({ eventId = null }) => {
+const BookingPage = ({ eventId = null, filmId = null }) => {
+  const [searchParams] = useSearchParams();
+  const requestedFilmId = Number(filmId || searchParams.get("filmId")) || null;
   const lockedEventMode = Boolean(eventId);
+  const selectedFilmMode = Boolean(requestedFilmId);
   const [events, setEvents] = useState([]);
   const [movieMap, setMovieMap] = useState({});
   const [selectedEventId, setSelectedEventId] = useState(eventId);
@@ -73,7 +76,10 @@ const BookingPage = ({ eventId = null }) => {
 
     try {
       const [eventResponse, movieResponse] = await Promise.allSettled([
-        eventService.getEvents({ limit: 100 }),
+        eventService.getEvents({
+          ...(selectedFilmMode ? { film_id: requestedFilmId, movie_id: requestedFilmId } : {}),
+          limit: 100,
+        }),
         movieService.getMovies({ limit: 200 }),
       ]);
 
@@ -91,13 +97,18 @@ const BookingPage = ({ eventId = null }) => {
       }
 
       const response = eventResponse.value;
-      setEvents(normalizeList(response).filter((item) => isShowtimeVisible(item)));
+      setEvents(
+        normalizeList(response).filter((item) => (
+          (!selectedFilmMode || String(getFilmId(item)) === String(requestedFilmId)) &&
+          isShowtimeVisible(item)
+        ))
+      );
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải danh sách suất chiếu."));
     } finally {
       setLoadingEvents(false);
     }
-  }, []);
+  }, [requestedFilmId, selectedFilmMode]);
 
   const fetchSeatMap = useCallback(async () => {
     if (!selectedEventId) return;
@@ -189,7 +200,8 @@ const BookingPage = ({ eventId = null }) => {
     setSeats([]);
     setSelectedSeats([]);
     setSuccess("");
-    navigate(`/booking/${nextEventId}`, { replace: false });
+    const filmQuery = selectedFilmMode ? `?filmId=${requestedFilmId}` : "";
+    navigate(`/booking/${nextEventId}${filmQuery}`, { replace: false });
   };
 
   const resolveMovieTitle = (nextEvent) => {
@@ -199,6 +211,13 @@ const BookingPage = ({ eventId = null }) => {
     const movie = movieMap[String(getFilmId(nextEvent))];
     return movie?.title || movie?.name || movie?.film_name || `Phim #${getFilmId(nextEvent) || "--"}`;
   };
+
+  const selectedFilm = movieMap[String(requestedFilmId)];
+  const selectedFilmTitle =
+    selectedFilm?.title ||
+    selectedFilm?.name ||
+    selectedFilm?.film_name ||
+    (requestedFilmId ? `Phim #${requestedFilmId}` : "");
 
   const toggleSeat = (seat) => {
     if (seatStatus(seat) !== "available") return;
@@ -258,10 +277,14 @@ const BookingPage = ({ eventId = null }) => {
       <header className="page-header">
         <div>
           <h1>{lockedEventMode ? "CHỌN GHẾ" : "CHỌN SUẤT CHIẾU"}</h1>
-    
+          {!lockedEventMode && selectedFilmMode && <p>Suất chiếu của {selectedFilmTitle}</p>}
         </div>
         {lockedEventMode ? (
-          <button className="ghost-button" type="button" onClick={() => navigate("/booking")}>
+          <button
+            className="ghost-button"
+            type="button"
+            onClick={() => navigate(selectedFilmMode ? `/booking/movie/${requestedFilmId}` : "/booking")}
+          >
             Đổi suất chiếu
           </button>
         ) : (
@@ -302,7 +325,13 @@ const BookingPage = ({ eventId = null }) => {
                 </button>
               );
             })}
-            {!visibleEvents.length && <p className="empty-state">Chưa có suất chiếu nào.</p>}
+            {!visibleEvents.length && (
+              <p className="empty-state">
+                {selectedFilmMode
+                  ? `${selectedFilmTitle} chưa có suất chiếu phù hợp.`
+                  : "Chưa có suất chiếu nào."}
+              </p>
+            )}
           </div>
         )}
       </section>

@@ -1,14 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { bookingService } from "../api/bookingService";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
-
-const normalizeList = (response) => {
-  if (Array.isArray(response)) return { items: response, total: response.length };
-  return {
-    items: response?.items || response?.data || response?.results || response?.tickets || [],
-    total: response?.total || response?.count || response?.pagination?.total || 0,
-  };
-};
+import { buildNextPageProbeParams, resolvePaginatedResponse } from "../utils/paginationHelper";
 
 export const useBookings = ({ admin = false, initialPage = 1, initialLimit = 10 } = {}) => {
   const [bookings, setBookings] = useState([]);
@@ -29,20 +22,42 @@ export const useBookings = ({ admin = false, initialPage = 1, initialLimit = 10 
       const response = admin
         ? await bookingService.getAllTickets(params)
         : await bookingService.getMyTickets(params);
-      const { items, total: nextTotal } = normalizeList(response);
+      const requestPage = (nextParams) => (
+        admin
+          ? bookingService.getAllTickets(nextParams)
+          : bookingService.getMyTickets(nextParams)
+      );
+      const { items, total: nextTotal } = await resolvePaginatedResponse({
+        response,
+        page,
+        limit,
+        listKeys: ["tickets", "bookings"],
+        probeNextPage: () => requestPage(buildNextPageProbeParams(params, page, limit)),
+      });
+
+      if (page > 1 && items.length === 0) {
+        setPage((currentPage) => Math.max(currentPage - 1, 1));
+        return;
+      }
+
       setBookings(items);
-      setTotal(nextTotal || items.length);
+      setTotal(nextTotal);
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải danh sách vé."));
     } finally {
       setLoading(false);
     }
-  }, [admin, params]);
+  }, [admin, limit, page, params]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBookings();
   }, [fetchBookings]);
+
+  const updateSearch = useCallback((value) => {
+    setPage(1);
+    setSearch(value);
+  }, []);
 
   return {
     bookings,
@@ -54,7 +69,7 @@ export const useBookings = ({ admin = false, initialPage = 1, initialLimit = 10 
     error,
     setPage,
     setLimit,
-    setSearch,
+    setSearch: updateSearch,
     refetch: fetchBookings,
     createBooking: bookingService.createBooking,
     payBooking: bookingService.payBooking,

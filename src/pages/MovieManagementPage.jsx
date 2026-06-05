@@ -32,7 +32,7 @@ const MovieManagementPage = () => {
     createMovie,
     updateMovie,
     deleteMovie,
-  } = useMovies();
+  } = useMovies({ initialLimit: 8 });
 
   const [form, setForm] = useState(emptyForm);
   const [editingMovie, setEditingMovie] = useState(null);

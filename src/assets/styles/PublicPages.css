@@ -10,23 +10,20 @@
 .home-hero {
   position: relative;
   display: flex;
+  width: 100%;
+  height: 460px;
   min-height: 460px;
+  max-height: 460px;
   align-items: flex-end;
   overflow: hidden;
   border-radius: var(--border-radius-xl);
   padding: 44px;
-  background:
-    linear-gradient(90deg, rgba(15, 23, 42, 0.62) 0%, rgba(2, 132, 199, 0.42) 48%, rgba(14, 165, 233, 0.18) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(15, 23, 42, 0.24)),
-    url("../hero.png") center / cover;
+  background: #0f172a;
   color: #ffffff;
   box-shadow: var(--box-shadow-hover);
   cursor: grab;
   user-select: none;
-  background-position: center;
-  background-size: cover;
   transition: box-shadow 0.25s ease;
-  will-change: background-image;
 }
 
 .home-hero:active {
@@ -39,6 +36,7 @@
 
 .home-hero::before {
   position: absolute;
+  z-index: 1;
   inset: 0;
   pointer-events: none;
   content: "";
@@ -49,49 +47,40 @@
   mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 68%);
 }
 
+.home-hero-track {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: flex;
+  width: 100%;
+  height: 460px;
+  transition: transform 0.78s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.home-hero-slide {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  min-width: 100%;
+  min-height: 460px;
+  flex: 0 0 100%;
+  background-color: #0f172a;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 .home-hero-content {
   position: relative;
-  z-index: 1;
-  max-width: 760px;
-  animation: heroContentIn 0.26s ease both;
-}
-
-.hero-arrow {
-  position: absolute;
   z-index: 2;
-  top: 50%;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  font-size: 30px;
-  line-height: 1;
-  transform: translateY(-50%);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.12);
-  transition: transform 0.18s ease, background 0.18s ease;
-}
-
-.hero-arrow:hover {
-  background: rgba(255, 255, 255, 0.28);
-  transform: translateY(-50%) scale(1.04);
-}
-
-.hero-arrow-left {
-  left: 18px;
-}
-
-.hero-arrow-right {
-  right: 18px;
+  max-width: 760px;
+  animation: heroContentIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .hero-dots {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   right: 28px;
   bottom: 24px;
   display: flex;
@@ -99,6 +88,8 @@
 }
 
 .hero-dots button {
+  position: relative;
+  overflow: hidden;
   width: 9px;
   height: 9px;
   border: 0;
@@ -110,7 +101,17 @@
 
 .hero-dots button.active {
   width: 28px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.hero-dots button.active::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: #ffffff;
+  content: "";
+  transform-origin: left;
+  animation: heroProgress 2s linear both;
 }
 
 .home-hero h1 {
@@ -179,11 +180,13 @@
 
 .movie-card-button {
   display: grid;
+  width: 100%;
   gap: 10px;
   border: 0;
   padding: 0;
   background: transparent;
   color: inherit;
+  cursor: pointer;
   text-align: left;
 }
 
@@ -227,86 +230,6 @@
   color: var(--primary-color);
   font-size: 13px;
   font-weight: var(--font-weight-display);
-}
-
-.movie-showtime-panel {
-  margin-top: 18px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-xl);
-  padding: 22px;
-  background: var(--surface-color);
-  box-shadow: var(--box-shadow);
-  backdrop-filter: var(--panel-blur);
-  animation: showtimeDrop 0.28s ease both;
-}
-
-.selected-showtime-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 16px;
-}
-
-.selected-showtime-header h2 {
-  margin-top: 6px;
-  font-size: clamp(24px, 3vw, 34px);
-}
-
-.selected-showtime-header p {
-  max-width: 760px;
-  margin-top: 8px;
-  color: var(--text-muted);
-}
-
-.movie-showtime-list {
-  display: grid;
-  gap: 10px;
-}
-
-.movie-showtime-option {
-  display: grid;
-  gap: 4px;
-  width: 100%;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 12px;
-  background: var(--surface-strong);
-  color: var(--text-color);
-  text-align: left;
-  transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
-  animation: fadeSlideIn 0.24s ease both;
-}
-
-.movie-showtime-option:hover {
-  transform: translateY(-2px) scale(1.01);
-  border-color: rgba(14, 165, 233, 0.42);
-  box-shadow: 0 12px 24px rgba(2, 132, 199, 0.14);
-}
-
-.movie-showtime-option strong {
-  color: var(--primary-color);
-}
-
-.movie-showtime-option span,
-.movie-showtime-option small {
-  color: var(--text-muted);
-  font-weight: var(--font-weight-bold);
-}
-
-.inline-error {
-  border-radius: var(--border-radius);
-  padding: 10px 12px;
-  background: color-mix(in srgb, var(--danger-color) 10%, var(--surface-strong));
-  color: var(--danger-color);
-  font-size: 13px;
-  font-weight: var(--font-weight-bold);
-  animation: fadeSlideIn 0.24s ease both;
-}
-
-.empty-state.compact {
-  padding: 14px;
-  font-size: 13px;
 }
 
 .movie-detail-hero {
@@ -413,6 +336,18 @@
 }
 
 @media (max-width: 840px) {
+  .home-hero,
+  .home-hero-track,
+  .home-hero-slide {
+    height: 380px;
+    min-height: 380px;
+    max-height: 380px;
+  }
+
+  .home-hero {
+    padding: 28px;
+  }
+
   .movie-detail-hero,
   .detail-meta,
   .showtime-item {
@@ -422,13 +357,23 @@
 
 @keyframes heroContentIn {
   from {
-    opacity: 0.72;
-    transform: translateY(6px);
+    opacity: 0;
+    transform: translateX(-18px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -444,14 +389,14 @@
   }
 }
 
-@keyframes showtimeDrop {
-  from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.98);
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-track,
+  .home-hero-content {
+    transition: none;
+    animation: none;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .hero-dots button.active::after {
+    animation: none;
   }
 }

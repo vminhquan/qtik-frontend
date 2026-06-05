@@ -1,14 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { movieService } from "../api/movieService";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
-
-const normalizeList = (response) => {
-  if (Array.isArray(response)) return { items: response, total: response.length };
-  return {
-    items: response?.items || response?.data || response?.results || response?.films || [],
-    total: response?.total || response?.count || response?.pagination?.total || 0,
-  };
-};
+import { buildNextPageProbeParams, resolvePaginatedResponse } from "../utils/paginationHelper";
 
 export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = false } = {}) => {
   const [movies, setMovies] = useState([]);
@@ -30,20 +23,40 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
         params,
         publicMode ? { skipAuth: true, skipAuthRedirect: true } : {}
       );
-      const { items, total: nextTotal } = normalizeList(response);
+      const { items, total: nextTotal } = await resolvePaginatedResponse({
+        response,
+        page,
+        limit,
+        listKeys: ["films", "movies"],
+        probeNextPage: () => movieService.getMovies(
+          buildNextPageProbeParams(params, page, limit),
+          publicMode ? { skipAuth: true, skipAuthRedirect: true } : {}
+        ),
+      });
+
+      if (page > 1 && items.length === 0) {
+        setPage((currentPage) => Math.max(currentPage - 1, 1));
+        return;
+      }
+
       setMovies(items);
-      setTotal(nextTotal || items.length);
+      setTotal(nextTotal);
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải danh sách phim."));
     } finally {
       setLoading(false);
     }
-  }, [params, publicMode]);
+  }, [limit, page, params, publicMode]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMovies();
   }, [fetchMovies]);
+
+  const updateSearch = useCallback((value) => {
+    setPage(1);
+    setSearch(value);
+  }, []);
 
   const createMovie = async (payload) => {
     const response = await movieService.createMovie(payload);
@@ -73,7 +86,7 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
     error,
     setPage,
     setLimit,
-    setSearch,
+    setSearch: updateSearch,
     refetch: fetchMovies,
     createMovie,
     updateMovie,

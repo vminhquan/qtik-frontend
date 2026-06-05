@@ -4,6 +4,7 @@ import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
 import Pagination from "../components/Pagination";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
+import { buildNextPageProbeParams, resolvePaginatedResponse } from "../utils/paginationHelper";
 import "../assets/styles/AdminPages.css";
 
 const getOtpStatus = (user) => {
@@ -28,10 +29,23 @@ const AdminUserManagementPage = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await userService.getUsers(buildListParams({ page, limit, search }));
-      const items = Array.isArray(response) ? response : response?.data || response?.items || response?.results || [];
+      const params = buildListParams({ page, limit, search });
+      const response = await userService.getUsers(params);
+      const { items, total: nextTotal } = await resolvePaginatedResponse({
+        response,
+        page,
+        limit,
+        listKeys: ["users"],
+        probeNextPage: () => userService.getUsers(buildNextPageProbeParams(params, page, limit)),
+      });
+
+      if (page > 1 && items.length === 0) {
+        setPage((currentPage) => Math.max(currentPage - 1, 1));
+        return;
+      }
+
       setUsers(items);
-      setTotal(response?.total || response?.count || items.length);
+      setTotal(nextTotal);
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải người dùng."));
     } finally {
