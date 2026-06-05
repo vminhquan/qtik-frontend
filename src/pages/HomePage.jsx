@@ -8,12 +8,31 @@ import heroImage from "../assets/hero.png";
 import "../assets/styles/PublicPages.css";
 
 const getMovieId = (movie) => movie?.id || movie?._id || movie?.film_id;
-const movieTitle = (movie) => movie?.title || movie?.name || movie?.film_name || "QTIK Movie";
-const getMoviePoster = (movie) => movie?.poster_url || movie?.posterUrl || movie?.banner_url || movie?.bannerUrl || heroImage;
+const movieTitle = (movie) =>
+  movie?.title || movie?.name || movie?.film_name || "QTIK Movie";
+const getMoviePoster = (movie) =>
+  movie?.poster_url ||
+  movie?.posterUrl ||
+  movie?.banner_url ||
+  movie?.bannerUrl ||
+  heroImage;
 const getMovieDescription = (movie) =>
-  movie?.description || movie?.overview || movie?.summary || movie?.content || movie?.synopsis || "";
-const getReleaseDate = (movie) => movie?.release_date || movie?.releaseDate || movie?.premiere_date || movie?.premiereDate;
-const getMovieDuration = (movie) => movie?.duration || movie?.duration_minutes || movie?.runtime || movie?.runtime_minutes;
+  movie?.description ||
+  movie?.overview ||
+  movie?.summary ||
+  movie?.content ||
+  movie?.synopsis ||
+  "";
+const getReleaseDate = (movie) =>
+  movie?.release_date ||
+  movie?.releaseDate ||
+  movie?.premiere_date ||
+  movie?.premiereDate;
+const getMovieDuration = (movie) =>
+  movie?.duration ||
+  movie?.duration_minutes ||
+  movie?.runtime ||
+  movie?.runtime_minutes;
 const formatMovieDuration = (movie) => {
   const duration = getMovieDuration(movie);
   return duration ? `${duration} phút` : "Thời lượng đang cập nhật";
@@ -31,7 +50,18 @@ const formatReleaseDate = (value) => {
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { movies, page, limit, total, search, loading, error, setPage, setSearch, refetch } = useMovies({
+  const {
+    movies,
+    page,
+    limit,
+    total,
+    search,
+    loading,
+    error,
+    setPage,
+    setSearch,
+    refetch,
+  } = useMovies({
     initialLimit: 10,
     publicMode: true,
   });
@@ -42,7 +72,10 @@ const HomePage = () => {
   const heroMovie = heroMovies[safeHeroIndex] || movies[0];
 
   useEffect(() => {
-    if (heroMovies.length <= 1 || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      heroMovies.length <= 1 ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    ) {
       return undefined;
     }
 
@@ -55,7 +88,10 @@ const HomePage = () => {
 
   const moveHero = (direction) => {
     if (!heroMovies.length) return;
-    setHeroIndex((current) => (current + direction + heroMovies.length) % heroMovies.length);
+    setHeroIndex(
+      (current) =>
+        (current + direction + heroMovies.length) % heroMovies.length,
+    );
   };
 
   const handleDragEnd = (clientX) => {
@@ -78,7 +114,9 @@ const HomePage = () => {
 
   const handlePageChange = (nextPage) => {
     setPage(nextPage);
-    document.getElementById("movie-catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document
+      .getElementById("movie-catalog")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -106,12 +144,28 @@ const HomePage = () => {
           ))}
         </div>
 
-        <div className="home-hero-content" key={getMovieId(heroMovie) || "hero-content"}>
-          <span className="page-kicker">{formatReleaseDate(getReleaseDate(heroMovie))}</span>
+        <div
+          className="home-hero-content"
+          key={getMovieId(heroMovie) || "hero-content"}
+        >
+          <span className="page-kicker">
+            {formatReleaseDate(getReleaseDate(heroMovie))}
+          </span>
           <h1>{heroMovie ? movieTitle(heroMovie) : "QTIK Cinema"}</h1>
-          <small className="movie-duration-label">{heroMovie ? formatMovieDuration(heroMovie) : "Thời lượng đang cập nhật"}</small>
-          <p>{getMovieDescription(heroMovie) || "Mô tả phim đang được cập nhật."}</p>
-          <button className="primary-button" type="button" onClick={handleHeroShowtimes} disabled={!heroMovie}>
+          <small className="movie-duration-label">
+            {heroMovie
+              ? formatMovieDuration(heroMovie)
+              : "Thời lượng đang cập nhật"}
+          </small>
+          <p>
+            {getMovieDescription(heroMovie) || "Mô tả phim đang được cập nhật."}
+          </p>
+          <button
+            className="primary-button"
+            type="button"
+            onClick={handleHeroShowtimes}
+            disabled={!heroMovie}
+          >
             Chọn suất chiếu
           </button>
         </div>
@@ -161,16 +215,30 @@ const HomePage = () => {
                   key={movieId}
                   style={{ animationDelay: `${Math.min(index * 55, 330)}ms` }}
                 >
-                  <button className="movie-card-button" type="button" onClick={() => openMovieShowtimes(movie)}>
+                  <button
+                    className="movie-card-button"
+                    type="button"
+                    onClick={() => openMovieShowtimes(movie)}
+                  >
                     <div className="public-poster">
                       {movie.poster_url || movie.posterUrl ? (
-                        <img src={movie.poster_url || movie.posterUrl} alt={movie.title || movie.name} />
+                        <img
+                          src={movie.poster_url || movie.posterUrl}
+                          alt={movie.title || movie.name}
+                        />
                       ) : (
-                        <span>{(movie.title || movie.name || "QT").slice(0, 2).toUpperCase()}</span>
+                        <span>
+                          {(movie.title || movie.name || "QT")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </span>
                       )}
                     </div>
                     <h3>{movieTitle(movie)}</h3>
-                    <p>{movie.genre || "Đang cập nhật"} · {formatMovieDuration(movie)}</p>
+                    <p>
+                      {movie.genre || "Đang cập nhật"} ·{" "}
+                      {formatMovieDuration(movie)}
+                    </p>
                     <span className="movie-card-cta">Xem suất chiếu</span>
                   </button>
                 </article>
@@ -179,7 +247,12 @@ const HomePage = () => {
           </div>
         )}
 
-        <Pagination page={page} limit={limit} total={total} onPageChange={handlePageChange} />
+        <Pagination
+          page={page}
+          limit={limit}
+          total={total}
+          onPageChange={handlePageChange}
+        />
       </section>
     </main>
   );
