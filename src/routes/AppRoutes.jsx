@@ -13,7 +13,9 @@ import LoginPage from "../pages/LoginPage";
 import MovieDetailPage from "../pages/MovieDetailPage";
 import MovieManagementPage from "../pages/MovieManagementPage";
 import PaymentPage from "../pages/PaymentPage";
-import ProfilePage, { ChangePasswordPage, TicketDetailPage, TicketsPage } from "../pages/ProfilePage";
+import PaymentResultPage from "../pages/PaymentResultPage";
+import ProfilePage, { ChangePasswordPage } from "../pages/ProfilePage";
+import { OrderDetailPage, OrdersPage } from "../pages/OrderPage";
 import RegisterPage from "../pages/RegisterPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import VerifyOtpPage from "../pages/VerifyOtpPage";
@@ -22,14 +24,12 @@ import RoleRoute from "./RoleRoute";
 
 const BookingPageWrapper = () => {
   const { eventId } = useParams();
-  const parsedEventId = Number(eventId) || null;
-  return <BookingPage key={parsedEventId || "all-showtimes"} eventId={parsedEventId} />;
+  return <BookingPage key={eventId || "all-showtimes"} eventId={eventId || null} />;
 };
 
 const MovieShowtimesPageWrapper = () => {
   const { filmId } = useParams();
-  const parsedFilmId = Number(filmId) || null;
-  return <BookingPage key={`film-${parsedFilmId || "all"}`} filmId={parsedFilmId} />;
+  return <BookingPage key={`film-${filmId || "all"}`} filmId={filmId || null} />;
 };
 
 const AppRoutes = () => (
@@ -51,11 +51,13 @@ const AppRoutes = () => (
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/booking/movie/:filmId" element={<MovieShowtimesPageWrapper />} />
         <Route path="/booking/:eventId" element={<BookingPageWrapper />} />
-        <Route path="/payment/:bookingId" element={<PaymentPage />} />
+        <Route path="/payment/:orderId" element={<PaymentPage />} />
+        <Route path="/payment/success" element={<PaymentResultPage />} />
+        <Route path="/payment/cancel" element={<PaymentResultPage cancelled />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/password" element={<ChangePasswordPage />} />
-        <Route path="/profile/tickets" element={<TicketsPage />} />
-        <Route path="/profile/tickets/:bookingId" element={<TicketDetailPage />} />
+        <Route path="/profile/orders" element={<OrdersPage />} />
+        <Route path="/profile/orders/:orderId" element={<OrderDetailPage />} />
       </Route>
     </Route>
 

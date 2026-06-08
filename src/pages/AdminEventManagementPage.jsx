@@ -70,9 +70,8 @@ const AdminEventManagementPage = () => {
     event.preventDefault();
     const payload = {
       ...form,
-      film_id: Number(form.film_id),
-      movie_id: Number(form.film_id),
-      room_id: Number(form.room_id),
+      film_id: form.film_id,
+      room_id: form.room_id,
       price: Number(form.price),
     };
 
@@ -115,6 +114,21 @@ const AdminEventManagementPage = () => {
     return new Date(startDate.getTime() + duration * 60000).toISOString();
   };
 
+  const getEventMovieTitle = (event) => {
+    const directTitle =
+      event.film?.title ||
+      event.movie?.title ||
+      event.film_title ||
+      event.movie_title;
+    if (directTitle) return directTitle;
+
+    const movieId = getEventMovieId(event);
+    const movie = movies.find(
+      (item) => String(item.id || item._id) === String(movieId)
+    );
+    return movie?.title || movie?.name || "Chưa xác định tên phim";
+  };
+
   return (
     <section className="admin-page">
       <header className="page-header">
@@ -140,7 +154,7 @@ const AdminEventManagementPage = () => {
         <div className="admin-panel">
           {loading ? <LoadingState /> : events.map((item) => (
             <div className="admin-row admin-event-row" key={getEventId(item)}>
-              <strong>{item.film?.title || item.movie?.title || item.title || `Event #${getEventId(item)}`}</strong>
+              <strong>Phim: {getEventMovieTitle(item)}</strong>
               <span>Bắt đầu: {formatDateTime(getEventStartTime(item))}</span>
               <span>Kết thúc: {formatDateTime(resolveEventEndTime(item))}</span>
               <button type="button" onClick={() => handleEditEvent(item)}>Sửa</button>

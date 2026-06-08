@@ -153,25 +153,20 @@
 }
 
 .qr-card {
-  display: grid;
-  grid-template-columns: repeat(7, 18px);
-  gap: 4px;
+  display: inline-grid;
+  place-items: center;
   width: max-content;
-  border: 10px solid #ffffff;
+  max-width: 100%;
+  border: 8px solid #ffffff;
   border-radius: var(--border-radius);
   background: #ffffff;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
 }
 
-.qr-card span {
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  background: #f1f5f9;
-}
-
-.qr-card .qr-cell-active {
-  background: #0f172a;
+.qr-card svg {
+  display: block;
+  width: min(180px, 100%);
+  height: auto;
 }
 
 @keyframes spin {

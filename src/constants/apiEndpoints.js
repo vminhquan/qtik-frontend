@@ -1,4 +1,8 @@
-export const BASE_URL = "https://api.qtik.io.vn/api";
+export const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
+  (import.meta.env.DEV
+    ? "http://127.0.0.1:8000/api"
+    : "https://api.qtik.io.vn/api");
 
 export const USER_API = {
   REGISTER: "/users/register",
@@ -35,10 +39,31 @@ export const MOVIE_API = {
 
 export const BOOKING_API = {
   CREATE: "/bookings/",
+  MY_BOOKINGS: "/bookings/me",
   MY_TICKETS: "/bookings/my-tickets",
+  ADMIN_ALL: "/bookings/admin/all",
+  ADMIN_DETAIL: (bookingId) => `/bookings/admin/${bookingId}`,
+  CLEANUP_EXPIRED: "/bookings/admin/cleanup-expired",
+  USE_TICKET: (qrToken) =>
+    `/bookings/tickets/${encodeURIComponent(qrToken)}/use`,
   DETAIL: (bookingId) => `/bookings/${bookingId}`,
-  PAY: (bookingId) => `/bookings/${bookingId}/pay`,
-  ADMIN_ALL_TICKETS: "/bookings/admin/all-tickets",
+};
+
+export const ORDER_API = {
+  MY_ORDERS: "/orders/me",
+  ADMIN_ALL: "/orders/admin/all",
+  DETAIL: (orderId) => `/orders/${orderId}`,
+  CANCEL: (orderId) => `/orders/${orderId}/cancel`,
+};
+
+export const PAYMENT_API = {
+  CREATE_LINK: "/payments/links",
+  BY_ORDER: (orderId) => `/payments/orders/${orderId}`,
+  RECONCILE_BY_PROVIDER_ORDER_CODE: (providerOrderCode) =>
+    `/payments/reconcile/provider-order-code/${encodeURIComponent(providerOrderCode)}`,
+  RECONCILE_BY_PAYMENT_LINK_ID: (paymentLinkId) =>
+    `/payments/reconcile/payment-link/${encodeURIComponent(paymentLinkId)}`,
+  DETAIL: (paymentId) => `/payments/${paymentId}`,
 };
 
 export const AI_API = {

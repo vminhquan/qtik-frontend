@@ -95,7 +95,7 @@ const PublicLayout = () => {
                       </div>
                     </div>
                     <NavLink end className={getAccountItemClass} to="/profile" role="menuitem" onClick={() => setAccountMenuOpen(false)}>Thông tin cá nhân</NavLink>
-                    <NavLink className={getAccountItemClass} to="/profile/tickets" role="menuitem" onClick={() => setAccountMenuOpen(false)}>Thông tin đơn hàng</NavLink>
+                    <NavLink className={getAccountItemClass} to="/profile/orders" role="menuitem" onClick={() => setAccountMenuOpen(false)}>Đơn hàng của tôi</NavLink>
                     <NavLink className={getAccountItemClass} to="/profile/password" role="menuitem" onClick={() => setAccountMenuOpen(false)}>Đổi mật khẩu</NavLink>
                     {isAdmin && <NavLink className={getAccountItemClass} to="/admin" role="menuitem" onClick={() => setAccountMenuOpen(false)}>Trang quản trị</NavLink>}
                     <button className="account-menu-item danger" type="button" role="menuitem" onClick={handleLogout}>Đăng xuất</button>

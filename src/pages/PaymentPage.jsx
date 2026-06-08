@@ -1,8 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { bookingService } from "../api/bookingService";
+import { orderService } from "../api/orderService";
+import { paymentService } from "../api/paymentService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
+import {
+  clearPendingPaymentContext,
+  formatCurrency,
+  getBookingHoldExpiryTime,
+  getBookingItems,
+  getOrderStatus,
+  getStatusLabel,
+  savePendingPaymentContext,
+  unwrapData,
+} from "../utils/commerceHelper";
 import { getErrorMessage } from "../utils/errorHandler";
 import "../assets/styles/UserPages.css";
 
@@ -13,108 +25,181 @@ const formatTime = (seconds) => {
 };
 
 const PaymentPage = () => {
-  const { bookingId } = useParams();
+  const { orderId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [expiresAt] = useState(() => location.state?.expiresAt || Date.now() + 5 * 60 * 1000);
+  const [order, setOrder] = useState(location.state?.order || null);
   const [booking, setBooking] = useState(location.state?.booking || null);
-  const [remaining, setRemaining] = useState(5 * 60);
-  const [loading, setLoading] = useState(!booking);
+  const [remaining, setRemaining] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState("");
-  const [expired, setExpired] = useState(false);
+  const expirySyncRef = useRef(false);
+
+  const loadCheckout = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const nextOrder = unwrapData(await orderService.getOrderById(orderId));
+      const bookingResponse = await bookingService.getBookingById(
+        nextOrder.booking_id
+      );
+
+      setOrder(nextOrder);
+      setBooking(unwrapData(bookingResponse));
+    } catch (err) {
+      setError(getErrorMessage(err, "Không thể tải thông tin thanh toán."));
+    } finally {
+      setLoading(false);
+    }
+  }, [orderId]);
 
   useEffect(() => {
-    const fetchBooking = async () => {
-      if (booking) return;
-      setLoading(true);
-      try {
-        const response = await bookingService.getBookingById(bookingId);
-        setBooking(response?.data || response);
-      } catch (err) {
-        setError(getErrorMessage(err, "Không thể tải đơn đặt vé."));
-      } finally {
-        setLoading(false);
-      }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadCheckout();
+  }, [loadCheckout]);
+
+  useEffect(() => {
+    const expiresAt = getBookingHoldExpiryTime(booking, order);
+
+    if (!expiresAt || Number.isNaN(expiresAt)) {
+      const resetTimer = window.setTimeout(() => setRemaining(null), 0);
+      return () => window.clearTimeout(resetTimer);
+    }
+
+    const updateRemaining = () => {
+      setRemaining(
+        Math.max(Math.ceil((expiresAt - Date.now()) / 1000), 0)
+      );
     };
 
-    fetchBooking();
-  }, [booking, bookingId]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setRemaining(Math.max(Math.ceil((expiresAt - Date.now()) / 1000), 0));
-    }, 1000);
-
+    updateRemaining();
+    const timer = window.setInterval(updateRemaining, 1000);
     return () => window.clearInterval(timer);
-  }, [expiresAt]);
+  }, [booking, order]);
+
+  const status = getOrderStatus(order);
+  const isPending = status === "pending";
+  const isExpired = status === "expired" || (isPending && remaining === 0);
+  const items = useMemo(() => getBookingItems(booking), [booking]);
 
   useEffect(() => {
-    const cancelExpiredBooking = async () => {
-      if (remaining > 0 || expired) return;
-      setExpired(true);
-      try {
-        await bookingService.deleteBooking(bookingId);
-      } catch {
-        // Backend có thể đã tự hủy đơn hết hạn.
-      }
-    };
+    if (remaining > 0) {
+      expirySyncRef.current = false;
+      return;
+    }
 
-    cancelExpiredBooking();
-  }, [bookingId, expired, remaining]);
+    if (remaining !== 0 || !isPending || expirySyncRef.current) {
+      return;
+    }
 
-  const totalPrice = useMemo(() => {
-    const seats = booking?.seats || booking?.data?.seats || [];
-    return booking?.total_price || booking?.totalPrice || seats.reduce((sum, seat) => sum + Number(seat.price || 0), 0);
-  }, [booking]);
+    expirySyncRef.current = true;
+    loadCheckout();
+  }, [isPending, loadCheckout, remaining]);
 
   const handlePay = async () => {
+    if (!order?.id || isExpired) return;
     setPaying(true);
     setError("");
 
     try {
-      await bookingService.payBooking(bookingId);
-      navigate(`/profile/tickets/${bookingId}`, { replace: true });
+      const paymentLink = unwrapData(
+        await paymentService.createPaymentLink(order.id)
+      );
+      if (!paymentLink?.checkout_url) {
+        throw new Error("payOS không trả về đường dẫn thanh toán.");
+      }
+
+      savePendingPaymentContext({
+        ...paymentLink,
+        order_id: paymentLink.order_id || order.id,
+      });
+      window.location.assign(paymentLink.checkout_url);
     } catch (err) {
-      setError(getErrorMessage(err, "Thanh toán thất bại."));
-    } finally {
+      setError(getErrorMessage(err, "Không thể khởi tạo thanh toán payOS."));
       setPaying(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!order?.id || !isPending) return;
+    setCancelling(true);
+    setError("");
+
+    try {
+      await orderService.cancelOrder(
+        order.id,
+        "Khách hàng hủy đơn trước khi thanh toán"
+      );
+      clearPendingPaymentContext();
+      navigate(`/profile/orders/${order.id}`, { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err, "Không thể hủy đơn hàng."));
+      setCancelling(false);
     }
   };
 
   if (loading) return <LoadingState label="Đang tải thanh toán..." />;
 
   return (
-    <section className="user-page">
+    <section className="user-page payment-page">
       <header className="page-header">
         <div>
-          <span className="page-kicker">Payment</span>
-          <h1>Thanh toán đơn #{bookingId}</h1>
-          <p>Ghế đang được giữ trong 5 phút. Hoàn tất thanh toán trước khi đồng hồ về 00:00.</p>
+          <span className="page-kicker">Thanh toán payOS</span>
+          <h1>Đơn #{order?.order_code || "..."}</h1>
+          <p>Kiểm tra thông tin ghế trước khi chuyển sang cổng thanh toán.</p>
         </div>
+        <Link className="ghost-button" to={`/profile/orders/${orderId}`}>
+          Xem chi tiết đơn
+        </Link>
       </header>
 
-      {error && <ErrorState message={error} />}
+      {error && <ErrorState message={error} onRetry={loadCheckout} />}
 
-      <div className="payment-card">
-        <div className={remaining <= 30 ? "countdown urgent" : "countdown"}>
-          <span>Thời gian còn lại</span>
-          <strong>{formatTime(remaining)}</strong>
+      <div className="payment-layout payment-layout-single">
+        <div className="payment-card">
+          {isPending && (
+            <div className={remaining != null && remaining <= 30 ? "countdown urgent" : "countdown"}>
+              <span>Thời gian giữ ghế còn lại</span>
+              <strong>{remaining == null ? "--:--" : formatTime(remaining)}</strong>
+            </div>
+          )}
+
+          <dl>
+            <div><dt>Mã đơn</dt><dd>{order?.order_code}</dd></div>
+            <div><dt>Mã PayOS</dt><dd>{order?.provider_order_code || "Chưa tạo"}</dd></div>
+            <div><dt>Trạng thái</dt><dd><span className={`status-pill ${status}`}>{getStatusLabel(status)}</span></dd></div>
+            <div><dt>Số ghế</dt><dd>{items.length}</dd></div>
+            <div><dt>Tổng thanh toán</dt><dd>{formatCurrency(order?.amount, order?.currency)}</dd></div>
+          </dl>
+
+          {isPending && !isExpired && (
+            <div className="payment-actions">
+              <button className="ghost-button" type="button" onClick={handleCancel} disabled={cancelling || paying}>
+                {cancelling ? "Đang hủy..." : "Hủy đơn"}
+              </button>
+              <button className="primary-button" type="button" onClick={handlePay} disabled={paying || cancelling}>
+                {paying ? "Đang mở payOS..." : "Thanh toán với payOS"}
+              </button>
+            </div>
+          )}
+
+          {isExpired && (
+            <div className="payment-expired">
+              <strong>Thời gian giữ ghế đã kết thúc</strong>
+              <p>Ghế đã được hệ thống giải phóng. Bạn có thể chọn lại suất chiếu.</p>
+              <Link className="primary-button" to="/booking">Chọn lại ghế</Link>
+            </div>
+          )}
+
+          {status === "paid" && (
+            <Link className="primary-button" to={`/profile/orders/${order?.id}`}>
+              Mở đơn hàng và vé
+            </Link>
+          )}
         </div>
-
-        <dl>
-          <div><dt>Mã đơn</dt><dd>{bookingId}</dd></div>
-          <div><dt>Trạng thái</dt><dd>{expired ? "EXPIRED" : booking?.status || "PENDING"}</dd></div>
-          <div><dt>Tổng tiền</dt><dd>{Number(totalPrice || 0).toLocaleString("vi-VN")} VNĐ</dd></div>
-        </dl>
-
-        {expired ? (
-          <Link className="primary-button" to="/booking">Chọn lại ghế</Link>
-        ) : (
-          <button className="primary-button" type="button" onClick={handlePay} disabled={paying}>
-            {paying ? "Đang thanh toán..." : "Thanh toán ngay"}
-          </button>
-        )}
       </div>
     </section>
   );

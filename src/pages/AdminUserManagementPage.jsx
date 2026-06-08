@@ -16,7 +16,7 @@ const getOtpStatus = (user) => {
 
 const AdminUserManagementPage = () => {
   const [users, setUsers] = useState([]);
-  const [form, setForm] = useState({ full_name: "", email: "", phone_number: "", role: "user" });
+  const [form, setForm] = useState({ full_name: "", email: "", phone_number: "" });
   const [editingUser, setEditingUser] = useState(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -66,13 +66,12 @@ const AdminUserManagementPage = () => {
       full_name: user.full_name || user.fullName || user.name || "",
       email: user.email || "",
       phone_number: user.phone_number || "",
-      role: user.role || "user",
     });
   };
 
   const cancelEdit = () => {
     setEditingUser(null);
-    setForm({ full_name: "", email: "", phone_number: "", role: "user" });
+    setForm({ full_name: "", email: "", phone_number: "" });
   };
 
   const handleSubmit = async (event) => {
@@ -83,7 +82,6 @@ const AdminUserManagementPage = () => {
       full_name: form.full_name.trim(),
       email: form.email.trim(),
       phone_number: form.phone_number.trim(),
-      role: form.role,
     });
     cancelEdit();
     await fetchUsers();
@@ -102,10 +100,6 @@ const AdminUserManagementPage = () => {
           <label>Họ tên<input value={form.full_name} onChange={(event) => setForm((prev) => ({ ...prev, full_name: event.target.value }))} disabled={!editingUser} /></label>
           <label>Email<input type="email" value={form.email} onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))} disabled={!editingUser} /></label>
           <label>Số điện thoại<input value={form.phone_number} onChange={(event) => setForm((prev) => ({ ...prev, phone_number: event.target.value }))} disabled={!editingUser} /></label>
-          <label>Vai trò<select value={form.role} onChange={(event) => setForm((prev) => ({ ...prev, role: event.target.value }))} disabled={!editingUser}>
-            <option value="user">user</option>
-            <option value="admin">admin</option>
-          </select></label>
           <button className="primary-button" type="submit" disabled={!editingUser}>Cập nhật người dùng</button>
           {editingUser && <button className="ghost-button" type="button" onClick={cancelEdit}>Hủy sửa</button>}
         </form>

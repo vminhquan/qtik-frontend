@@ -1,17 +1,19 @@
+import { QRCodeSVG } from "qrcode.react";
 import "../assets/styles/Common.css";
 
 const QRCodeCard = ({ value }) => {
-  const seed = String(value || "QTIK");
-  const cells = Array.from({ length: 49 }, (_, index) => {
-    const code = seed.charCodeAt(index % seed.length);
-    return (code + index * 7) % 3 !== 0;
-  });
+  const qrValue = String(value || "QTIK");
 
   return (
-    <div className="qr-card" aria-label={`QR ${seed}`}>
-      {cells.map((active, index) => (
-        <span key={index} className={active ? "qr-cell-active" : ""} />
-      ))}
+    <div className="qr-card" aria-label={`QR ${qrValue}`}>
+      <QRCodeSVG
+        value={qrValue}
+        size={180}
+        level="M"
+        marginSize={1}
+        bgColor="#ffffff"
+        fgColor="#0f172a"
+      />
     </div>
   );
 };

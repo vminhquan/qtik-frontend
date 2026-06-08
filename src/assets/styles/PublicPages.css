@@ -117,7 +117,7 @@
 .home-hero h1 {
   max-width: 760px;
   margin: 8px 0 12px;
-  font-size: clamp(44px, 7vw, 82px);
+  font-size: 72px;
   line-height: 0.95;
 }
 
@@ -251,7 +251,7 @@
 
 .movie-detail-hero h1 {
   margin: 8px 0 14px;
-  font-size: clamp(38px, 5vw, 64px);
+  font-size: 54px;
   line-height: 1;
 }
 
@@ -346,6 +346,11 @@
 
   .home-hero {
     padding: 28px;
+  }
+
+  .home-hero-content h1,
+  .movie-detail-hero h1 {
+    font-size: 42px;
   }
 
   .movie-detail-hero,
