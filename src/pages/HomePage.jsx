@@ -396,7 +396,7 @@ const HomePage = () => {
       <section className="movie-section" id="movie-catalog">
         <header className="page-header">
           <div>
-            <span className="page-kicker">Đang chiếu</span>
+            <span className="page-kicker">Movie showing</span>
             <h1>Chọn phim bạn muốn xem</h1>
           </div>
           <label className="search-box">

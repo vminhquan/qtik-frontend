@@ -228,7 +228,7 @@ const TheaterSchedulePage = () => {
     <main className="theater-schedule-page">
       <header className="schedule-page-header">
         <div>
-          <span className="page-kicker">Lịch chiếu</span>
+          <span className="page-kicker">Movie schedule</span>
           <h1>Lịch chiếu theo rạp</h1>
         </div>
         <label className="schedule-room-select">
