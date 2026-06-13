@@ -32,7 +32,7 @@ const MovieManagementPage = () => {
     createMovie,
     updateMovie,
     deleteMovie,
-  } = useMovies({ initialLimit: 9 });
+  } = useMovies({ initialLimit: 12 });
 
   const [form, setForm] = useState(emptyForm);
   const [editingMovie, setEditingMovie] = useState(null);
@@ -40,8 +40,11 @@ const MovieManagementPage = () => {
   const [formError, setFormError] = useState("");
 
   const title = useMemo(
-    () => (editingMovie ? `Cập nhật ${editingMovie.title || editingMovie.name}` : "Thêm phim mới"),
-    [editingMovie]
+    () =>
+      editingMovie
+        ? `Cập nhật ${editingMovie.title || editingMovie.name}`
+        : "Thêm phim mới",
+    [editingMovie],
   );
 
   const handleChange = (event) => {
@@ -132,7 +135,12 @@ const MovieManagementPage = () => {
 
           <label>
             Tên phim
-            <input name="title" value={form.title} onChange={handleChange} required />
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              required
+            />
           </label>
           <label>
             Thể loại
@@ -140,19 +148,39 @@ const MovieManagementPage = () => {
           </label>
           <label>
             Thời lượng
-            <input name="duration" type="number" min="1" value={form.duration} onChange={handleChange} />
+            <input
+              name="duration"
+              type="number"
+              min="1"
+              value={form.duration}
+              onChange={handleChange}
+            />
           </label>
           <label>
             Ngày phát hành
-            <input name="release_date" type="date" value={form.release_date} onChange={handleChange} />
+            <input
+              name="release_date"
+              type="date"
+              value={form.release_date}
+              onChange={handleChange}
+            />
           </label>
           <label>
             Poster URL
-            <input name="poster_url" value={form.poster_url} onChange={handleChange} />
+            <input
+              name="poster_url"
+              value={form.poster_url}
+              onChange={handleChange}
+            />
           </label>
           <label>
             Mô tả
-            <textarea name="description" value={form.description} onChange={handleChange} rows="4" />
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows="4"
+            />
           </label>
 
           <div className="form-actions">
@@ -175,28 +203,50 @@ const MovieManagementPage = () => {
                 <article className="movie-card" key={getMovieId(movie)}>
                   <div className="movie-poster">
                     {movie.poster_url || movie.posterUrl ? (
-                      <img src={movie.poster_url || movie.posterUrl} alt={movie.title || movie.name} />
+                      <img
+                        src={movie.poster_url || movie.posterUrl}
+                        alt={movie.title || movie.name}
+                      />
                     ) : (
-                      <span>{(movie.title || movie.name || "QT").slice(0, 2).toUpperCase()}</span>
+                      <span>
+                        {(movie.title || movie.name || "QT")
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </span>
                     )}
                   </div>
                   <div className="movie-card-body">
                     <h3>{movie.title || movie.name}</h3>
                     <p>{movie.genre || "Chưa có thể loại"}</p>
-                    <small>{movie.duration ? `${movie.duration} phút` : "Chưa có thời lượng"}</small>
+                    <small>
+                      {movie.duration
+                        ? `${movie.duration} phút`
+                        : "Chưa có thời lượng"}
+                    </small>
                   </div>
                   <div className="movie-card-actions">
-                    <button type="button" onClick={() => handleEdit(movie)}>Sửa</button>
-                    <button type="button" onClick={() => handleDelete(movie)}>Xóa</button>
+                    <button type="button" onClick={() => handleEdit(movie)}>
+                      Sửa
+                    </button>
+                    <button type="button" onClick={() => handleDelete(movie)}>
+                      Xóa
+                    </button>
                   </div>
                 </article>
               ))}
 
-              {!movies.length && <p className="empty-state">Chưa có phim phù hợp.</p>}
+              {!movies.length && (
+                <p className="empty-state">Chưa có phim phù hợp.</p>
+              )}
             </div>
           )}
 
-          <Pagination page={page} limit={limit} total={total} onPageChange={setPage} />
+          <Pagination
+            page={page}
+            limit={limit}
+            total={total}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </section>

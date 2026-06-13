@@ -135,7 +135,7 @@ const HomePage = () => {
     setSearch,
     refetch,
   } = useMovies({
-    initialLimit: 10,
+    initialLimit: 12,
     publicMode: true,
   });
   const [heroIndex, setHeroIndex] = useState(0);
@@ -164,7 +164,8 @@ const HomePage = () => {
   const visibleShowtimes = useMemo(
     () =>
       showtimeEvents.filter(
-        (event) => getDateKey(getEventStartTime(event)) === selectedShowtimeDate,
+        (event) =>
+          getDateKey(getEventStartTime(event)) === selectedShowtimeDate,
       ),
     [selectedShowtimeDate, showtimeEvents],
   );
