@@ -27,16 +27,13 @@ const BookingPageWrapper = () => {
   return <BookingPage key={eventId || "all-showtimes"} eventId={eventId || null} />;
 };
 
-const MovieShowtimesPageWrapper = () => {
-  const { filmId } = useParams();
-  return <BookingPage key={`film-${filmId || "all"}`} filmId={filmId || null} />;
-};
-
 const AppRoutes = () => (
   <Routes>
     <Route element={<PublicLayout />}>
       <Route path="/" element={<HomePage />} />
       <Route path="/movies/:id" element={<MovieDetailPage />} />
+      <Route path="/booking" element={<Navigate to="/#movie-catalog" replace />} />
+      <Route path="/booking/movie/:filmId" element={<Navigate to="/#movie-catalog" replace />} />
     </Route>
 
     <Route path="/login" element={<LoginPage />} />
@@ -48,8 +45,6 @@ const AppRoutes = () => (
 
     <Route element={<ProtectedRoute />}>
       <Route element={<PublicLayout />}>
-        <Route path="/booking" element={<BookingPage />} />
-        <Route path="/booking/movie/:filmId" element={<MovieShowtimesPageWrapper />} />
         <Route path="/booking/:eventId" element={<BookingPageWrapper />} />
         <Route path="/payment/:orderId" element={<PaymentPage />} />
         <Route path="/payment/success" element={<PaymentResultPage />} />

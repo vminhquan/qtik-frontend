@@ -1,8 +1,4 @@
-export const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
-  (import.meta.env.DEV
-    ? "http://127.0.0.1:8000/api"
-    : "https://api.qtik.io.vn/api");
+export const BASE_URL = "https://api.qtik.io.vn/api";
 
 export const USER_API = {
   REGISTER: "/users/register",

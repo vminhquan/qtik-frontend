@@ -1,4 +1,13 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  Armchair,
+  CalendarClock,
+  Film,
+  LogOut,
+  ShoppingBag,
+  Store,
+  Users,
+} from "lucide-react";
 import ThemeToggle from "../components/ThemeToggle";
 import { useAuth } from "../hooks/useAuth";
 import { getUserDisplayName } from "../utils/userHelper";
@@ -26,18 +35,18 @@ const AdminLayout = () => {
         </Link>
 
         <nav className="app-nav" aria-label="Admin navigation">
-          <NavLink to="/admin/movies">Quản lý phim</NavLink>
-          <NavLink to="/admin/rooms">Phòng chiếu</NavLink>
-          <NavLink to="/admin/events">Suất chiếu</NavLink>
-          <NavLink to="/admin/bookings">Đơn hàng</NavLink>
-          <NavLink to="/admin/users">Người dùng</NavLink>
-          <NavLink to="/">Về trang khách</NavLink>
+          <NavLink to="/admin/movies"><Film aria-hidden="true" />Quản lý phim</NavLink>
+          <NavLink to="/admin/rooms"><Armchair aria-hidden="true" />Phòng chiếu</NavLink>
+          <NavLink to="/admin/events"><CalendarClock aria-hidden="true" />Suất chiếu</NavLink>
+          <NavLink to="/admin/bookings"><ShoppingBag aria-hidden="true" />Đơn hàng</NavLink>
+          <NavLink to="/admin/users"><Users aria-hidden="true" />Người dùng</NavLink>
+          <NavLink to="/"><Store aria-hidden="true" />Về trang khách</NavLink>
         </nav>
 
         <div className="app-user">
           <ThemeToggle />
           <span>{getUserDisplayName(currentUser, "QTIK Admin")}</span>
-          <button type="button" onClick={handleLogout}>Đăng xuất</button>
+          <button type="button" onClick={handleLogout}><LogOut aria-hidden="true" />Đăng xuất</button>
         </div>
       </aside>
 

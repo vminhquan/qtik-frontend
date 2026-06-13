@@ -6,6 +6,9 @@ import {
   resolvePaginatedResponse,
 } from "../utils/paginationHelper";
 
+const isVisibleUserOrder = (order) =>
+  ["pending", "paid"].includes(String(order?.status || "").toLowerCase());
+
 export const useOrders = ({
   admin = false,
   initialPage = 1,
@@ -48,8 +51,13 @@ export const useOrders = ({
         return;
       }
 
-      setOrders(items);
-      setTotal(nextTotal);
+      const visibleItems = admin
+        ? items
+        : items.filter(isVisibleUserOrder);
+      setOrders(visibleItems);
+      setTotal(
+        admin ? nextTotal : Math.max(nextTotal - (items.length - visibleItems.length), 0),
+      );
     } catch (err) {
       setError(getErrorMessage(err, "Không thể tải danh sách đơn hàng."));
     } finally {

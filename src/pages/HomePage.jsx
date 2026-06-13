@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Clock3, Search, Ticket, X } from "lucide-react";
+import { eventService } from "../api/eventService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
 import Pagination from "../components/Pagination";
 import useMovies from "../hooks/useMovies";
+import { getErrorMessage } from "../utils/errorHandler";
+import { isShowtimeVisible } from "../utils/showtimeHelper";
 import heroImage from "../assets/hero.png";
 import "../assets/styles/PublicPages.css";
 
@@ -47,9 +51,78 @@ const formatReleaseDate = (value) => {
     year: "numeric",
   })}`;
 };
+const normalizeList = (response) => {
+  if (Array.isArray(response)) return response;
+  const payload = response?.data || response;
+  return Array.isArray(payload)
+    ? payload
+    : payload?.items ||
+        payload?.results ||
+        payload?.events ||
+        payload?.seats ||
+        [];
+};
+const getEventId = (event) => event?.id || event?._id || event?.event_id;
+const getEventFilmId = (event) =>
+  event?.film_id || event?.movie_id || event?.film?.id || event?.movie?.id;
+const getEventStartTime = (event) =>
+  event?.start_time ||
+  event?.startTime ||
+  event?.started_at ||
+  event?.show_time ||
+  event?.showTime;
+const getDateKey = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (part) => String(part).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+const formatShowtimeDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const pad = (part) => String(part).padStart(2, "0");
+  const weekdays = [
+    "Chủ nhật",
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+  ];
+
+  return {
+    date: `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`,
+    weekday: weekdays[date.getDay()],
+  };
+};
+const formatShowtimeTime = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Đang cập nhật";
+  return date.toLocaleTimeString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+const formatEventPrice = (event) => {
+  const price = Number(
+    event?.price || event?.ticket_price || event?.ticketPrice || 0,
+  );
+  return price > 0 ? `${price.toLocaleString("vi-VN")} VNĐ` : "Xem giá vé";
+};
+const getAvailableSeatCount = (event) =>
+  event?.availableSeatCount ??
+  event?.available_seats ??
+  event?.availableSeats ??
+  event?.remaining_seats ??
+  event?.seats_available;
+const getSeatStatus = (seat) =>
+  String(seat?.status?.value || seat?.status || "").toLowerCase();
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const showtimeRequestRef = useRef(0);
   const {
     movies,
     page,
@@ -67,9 +140,34 @@ const HomePage = () => {
   });
   const [heroIndex, setHeroIndex] = useState(0);
   const [dragStartX, setDragStartX] = useState(null);
+  const [showtimeMovie, setShowtimeMovie] = useState(null);
+  const [showtimeEvents, setShowtimeEvents] = useState([]);
+  const [selectedShowtimeDate, setSelectedShowtimeDate] = useState("");
+  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+  const [showtimeError, setShowtimeError] = useState("");
   const heroMovies = useMemo(() => movies.slice(0, 6), [movies]);
   const safeHeroIndex = heroMovies.length ? heroIndex % heroMovies.length : 0;
   const heroMovie = heroMovies[safeHeroIndex] || movies[0];
+  const showtimeDates = useMemo(() => {
+    const uniqueDates = new Map();
+    showtimeEvents.forEach((event) => {
+      const startTime = getEventStartTime(event);
+      const dateKey = getDateKey(startTime);
+      if (dateKey && !uniqueDates.has(dateKey)) {
+        uniqueDates.set(dateKey, startTime);
+      }
+    });
+    return [...uniqueDates.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => ({ key, value }));
+  }, [showtimeEvents]);
+  const visibleShowtimes = useMemo(
+    () =>
+      showtimeEvents.filter(
+        (event) => getDateKey(getEventStartTime(event)) === selectedShowtimeDate,
+      ),
+    [selectedShowtimeDate, showtimeEvents],
+  );
 
   useEffect(() => {
     if (
@@ -86,6 +184,35 @@ const HomePage = () => {
     return () => window.clearTimeout(timer);
   }, [heroMovies.length, safeHeroIndex]);
 
+  useEffect(() => {
+    if (location.hash !== "#movie-catalog") return;
+
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById("movie-catalog")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [location.hash]);
+
+  useEffect(() => {
+    if (!showtimeMovie) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setShowtimeMovie(null);
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showtimeMovie]);
+
   const moveHero = (direction) => {
     if (!heroMovies.length) return;
     setHeroIndex(
@@ -101,10 +228,89 @@ const HomePage = () => {
     setDragStartX(null);
   };
 
-  const openMovieShowtimes = (movie) => {
+  const closeMovieShowtimes = () => {
+    showtimeRequestRef.current += 1;
+    setShowtimeMovie(null);
+  };
+
+  const openMovieShowtimes = async (movie) => {
     const movieId = getMovieId(movie);
     if (!movieId) return;
-    navigate(`/booking/movie/${movieId}`);
+
+    const requestId = showtimeRequestRef.current + 1;
+    showtimeRequestRef.current = requestId;
+    setShowtimeMovie(movie);
+    setShowtimeEvents([]);
+    setSelectedShowtimeDate("");
+    setShowtimeError("");
+    setLoadingShowtimes(true);
+
+    try {
+      const response = await eventService.getEvents(
+        { film_id: movieId, movie_id: movieId, limit: 100 },
+        { skipAuth: true, skipAuthRedirect: true },
+      );
+      if (showtimeRequestRef.current !== requestId) return;
+
+      const nextEvents = normalizeList(response)
+        .filter(
+          (event) =>
+            String(getEventFilmId(event)) === String(movieId) &&
+            isShowtimeVisible(event),
+        )
+        .sort(
+          (left, right) =>
+            new Date(getEventStartTime(left)).getTime() -
+            new Date(getEventStartTime(right)).getTime(),
+        );
+
+      const eventsWithAvailability = await Promise.all(
+        nextEvents.map(async (event) => {
+          const existingCount = getAvailableSeatCount(event);
+          if (existingCount != null) {
+            return { ...event, availableSeatCount: existingCount };
+          }
+
+          try {
+            const seatResponse = await eventService.getEventSeats(
+              getEventId(event),
+              { skipAuth: true, skipAuthRedirect: true },
+            );
+            const availableSeatCount = normalizeList(seatResponse).filter(
+              (seat) => getSeatStatus(seat) === "available",
+            ).length;
+            return { ...event, availableSeatCount };
+          } catch {
+            return event;
+          }
+        }),
+      );
+
+      if (showtimeRequestRef.current !== requestId) return;
+      setShowtimeEvents(eventsWithAvailability);
+      setSelectedShowtimeDate(
+        eventsWithAvailability.length
+          ? getDateKey(getEventStartTime(eventsWithAvailability[0]))
+          : "",
+      );
+    } catch (error) {
+      if (showtimeRequestRef.current !== requestId) return;
+      setShowtimeError(
+        getErrorMessage(error, "Không thể tải lịch chiếu của phim."),
+      );
+    } finally {
+      if (showtimeRequestRef.current === requestId) {
+        setLoadingShowtimes(false);
+      }
+    }
+  };
+
+  const selectShowtime = (event) => {
+    const eventId = getEventId(event);
+    const movieId = getMovieId(showtimeMovie);
+    if (!eventId || !movieId) return;
+    closeMovieShowtimes();
+    navigate(`/booking/${eventId}?filmId=${movieId}`);
   };
 
   const handleHeroShowtimes = () => {
@@ -166,6 +372,7 @@ const HomePage = () => {
             onClick={handleHeroShowtimes}
             disabled={!heroMovie}
           >
+            <Ticket aria-hidden="true" />
             Chọn suất chiếu
           </button>
         </div>
@@ -188,16 +395,19 @@ const HomePage = () => {
       <section className="movie-section" id="movie-catalog">
         <header className="page-header">
           <div>
-            <span className="page-kicker">Catalog</span>
-            <h1>Phim Hot</h1>
+            <span className="page-kicker">Đang chiếu</span>
+            <h1>Chọn phim bạn muốn xem</h1>
           </div>
           <label className="search-box">
             <span>Tìm phim</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nhập tên phim..."
-            />
+            <div className="search-control">
+              <Search aria-hidden="true" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Nhập tên phim..."
+              />
+            </div>
           </label>
         </header>
 
@@ -234,12 +444,21 @@ const HomePage = () => {
                         </span>
                       )}
                     </div>
-                    <h3>{movieTitle(movie)}</h3>
-                    <p>
-                      {movie.genre || "Đang cập nhật"} ·{" "}
-                      {formatMovieDuration(movie)}
-                    </p>
-                    <span className="movie-card-cta">Xem suất chiếu</span>
+                    <h2>{movieTitle(movie)}</h2>
+                    <div className="movie-card-meta">
+                      <span>
+                        <strong>Thể loại:</strong>
+                        {movie.genre || "Đang cập nhật"}
+                      </span>
+                      <span>
+                        <strong>Thời lượng:</strong>
+                        {formatMovieDuration(movie)}
+                      </span>
+                    </div>
+                    <span className="movie-card-cta">
+                      <Ticket aria-hidden="true" />
+                      MUA VÉ
+                    </span>
                   </button>
                 </article>
               );
@@ -254,6 +473,117 @@ const HomePage = () => {
           onPageChange={handlePageChange}
         />
       </section>
+
+      {showtimeMovie && (
+        <div
+          className="showtime-modal-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeMovieShowtimes();
+          }}
+        >
+          <section
+            className="showtime-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="showtime-modal-title"
+          >
+            <header className="showtime-modal-header">
+              <div>
+                <span className="page-kicker">Lịch chiếu</span>
+                <h2 id="showtime-modal-title">{movieTitle(showtimeMovie)}</h2>
+              </div>
+              <button
+                className="showtime-modal-close"
+                type="button"
+                onClick={closeMovieShowtimes}
+                aria-label="Đóng lịch chiếu"
+                title="Đóng"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+
+            <div className="showtime-modal-body">
+              <h3>QTIK Cinema</h3>
+
+              {loadingShowtimes && (
+                <LoadingState label="Đang tải lịch chiếu..." />
+              )}
+
+              {showtimeError && (
+                <ErrorState
+                  message={showtimeError}
+                  onRetry={() => openMovieShowtimes(showtimeMovie)}
+                />
+              )}
+
+              {!loadingShowtimes && !showtimeError && (
+                <>
+                  <div
+                    className="showtime-date-tabs"
+                    role="tablist"
+                    aria-label="Chọn ngày chiếu"
+                  >
+                    {showtimeDates.map(({ key, value }) => {
+                      const dateLabel = formatShowtimeDate(value);
+                      return (
+                        <button
+                          className={
+                            key === selectedShowtimeDate ? "active" : ""
+                          }
+                          key={key}
+                          type="button"
+                          role="tab"
+                          aria-selected={key === selectedShowtimeDate}
+                          onClick={() => setSelectedShowtimeDate(key)}
+                        >
+                          <strong>{dateLabel?.date}</strong>
+                          <span>- {dateLabel?.weekday}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {visibleShowtimes.length > 0 ? (
+                    <div className="showtime-modal-list">
+                      <strong>Suất chiếu</strong>
+                      <div className="showtime-time-grid">
+                        {visibleShowtimes.map((event) => (
+                          <button
+                            key={getEventId(event)}
+                            type="button"
+                            onClick={() => selectShowtime(event)}
+                          >
+                            <Clock3 aria-hidden="true" />
+                            <span>
+                              <strong>
+                                {formatShowtimeTime(getEventStartTime(event))}
+                              </strong>
+                              <small>{formatEventPrice(event)}</small>
+                              <small className="showtime-seat-count">
+                                {getAvailableSeatCount(event) != null
+                                  ? `${getAvailableSeatCount(event)} ghế trống`
+                                  : "Đang cập nhật ghế"}
+                              </small>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="showtime-modal-empty">
+                      <Ticket aria-hidden="true" />
+                      <strong>Chưa có suất chiếu phù hợp</strong>
+                      <span>Lịch chiếu mới sẽ được cập nhật sớm.</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 };

@@ -11,7 +11,6 @@ import {
   getBookingHoldExpiryTime,
   getBookingItems,
   getOrderStatus,
-  getStatusLabel,
   savePendingPaymentContext,
   unwrapData,
 } from "../utils/commerceHelper";
@@ -19,8 +18,12 @@ import { getErrorMessage } from "../utils/errorHandler";
 import "../assets/styles/UserPages.css";
 
 const formatTime = (seconds) => {
-  const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
-  const rest = Math.max(seconds % 60, 0).toString().padStart(2, "0");
+  const minutes = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const rest = Math.max(seconds % 60, 0)
+    .toString()
+    .padStart(2, "0");
   return `${minutes}:${rest}`;
 };
 
@@ -44,7 +47,7 @@ const PaymentPage = () => {
     try {
       const nextOrder = unwrapData(await orderService.getOrderById(orderId));
       const bookingResponse = await bookingService.getBookingById(
-        nextOrder.booking_id
+        nextOrder.booking_id,
       );
 
       setOrder(nextOrder);
@@ -70,9 +73,7 @@ const PaymentPage = () => {
     }
 
     const updateRemaining = () => {
-      setRemaining(
-        Math.max(Math.ceil((expiresAt - Date.now()) / 1000), 0)
-      );
+      setRemaining(Math.max(Math.ceil((expiresAt - Date.now()) / 1000), 0));
     };
 
     updateRemaining();
@@ -106,7 +107,7 @@ const PaymentPage = () => {
 
     try {
       const paymentLink = unwrapData(
-        await paymentService.createPaymentLink(order.id)
+        await paymentService.createPaymentLink(order.id),
       );
       if (!paymentLink?.checkout_url) {
         throw new Error("payOS không trả về đường dẫn thanh toán.");
@@ -131,10 +132,10 @@ const PaymentPage = () => {
     try {
       await orderService.cancelOrder(
         order.id,
-        "Khách hàng hủy đơn trước khi thanh toán"
+        "Khách hàng hủy đơn trước khi thanh toán",
       );
       clearPendingPaymentContext();
-      navigate(`/profile/orders/${order.id}`, { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, "Không thể hủy đơn hàng."));
       setCancelling(false);
@@ -147,13 +148,8 @@ const PaymentPage = () => {
     <section className="user-page payment-page">
       <header className="page-header">
         <div>
-          <span className="page-kicker">Thanh toán payOS</span>
-          <h1>Đơn #{order?.order_code || "..."}</h1>
-          <p>Kiểm tra thông tin ghế trước khi chuyển sang cổng thanh toán.</p>
+          <h1>Thanh toán đơn hàng</h1>
         </div>
-        <Link className="ghost-button" to={`/profile/orders/${orderId}`}>
-          Xem chi tiết đơn
-        </Link>
       </header>
 
       {error && <ErrorState message={error} onRetry={loadCheckout} />}
@@ -161,27 +157,48 @@ const PaymentPage = () => {
       <div className="payment-layout payment-layout-single">
         <div className="payment-card">
           {isPending && (
-            <div className={remaining != null && remaining <= 30 ? "countdown urgent" : "countdown"}>
+            <div
+              className={
+                remaining != null && remaining <= 30
+                  ? "countdown urgent"
+                  : "countdown"
+              }
+            >
               <span>Thời gian giữ ghế còn lại</span>
-              <strong>{remaining == null ? "--:--" : formatTime(remaining)}</strong>
+              <strong>
+                {remaining == null ? "--:--" : formatTime(remaining)}
+              </strong>
             </div>
           )}
 
           <dl>
-            <div><dt>Mã đơn</dt><dd>{order?.order_code}</dd></div>
-            <div><dt>Mã PayOS</dt><dd>{order?.provider_order_code || "Chưa tạo"}</dd></div>
-            <div><dt>Trạng thái</dt><dd><span className={`status-pill ${status}`}>{getStatusLabel(status)}</span></dd></div>
-            <div><dt>Số ghế</dt><dd>{items.length}</dd></div>
-            <div><dt>Tổng thanh toán</dt><dd>{formatCurrency(order?.amount, order?.currency)}</dd></div>
+            <div>
+              <dt>Số ghế</dt>
+              <dd>{items.length}</dd>
+            </div>
+            <div>
+              <dt>Tổng thanh toán</dt>
+              <dd>{formatCurrency(order?.amount, order?.currency)}</dd>
+            </div>
           </dl>
 
           {isPending && !isExpired && (
             <div className="payment-actions">
-              <button className="ghost-button" type="button" onClick={handleCancel} disabled={cancelling || paying}>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={handleCancel}
+                disabled={cancelling || paying}
+              >
                 {cancelling ? "Đang hủy..." : "Hủy đơn"}
               </button>
-              <button className="primary-button" type="button" onClick={handlePay} disabled={paying || cancelling}>
-                {paying ? "Đang mở payOS..." : "Thanh toán với payOS"}
+              <button
+                className="primary-button"
+                type="button"
+                onClick={handlePay}
+                disabled={paying || cancelling}
+              >
+                {paying ? "Đang tải..." : "Thanh toán"}
               </button>
             </div>
           )}
@@ -189,13 +206,20 @@ const PaymentPage = () => {
           {isExpired && (
             <div className="payment-expired">
               <strong>Thời gian giữ ghế đã kết thúc</strong>
-              <p>Ghế đã được hệ thống giải phóng. Bạn có thể chọn lại suất chiếu.</p>
-              <Link className="primary-button" to="/booking">Chọn lại ghế</Link>
+              <p>
+                Ghế đã được hệ thống giải phóng. Bạn có thể chọn lại suất chiếu.
+              </p>
+              <Link className="primary-button" to="/booking">
+                Chọn lại ghế
+              </Link>
             </div>
           )}
 
           {status === "paid" && (
-            <Link className="primary-button" to={`/profile/orders/${order?.id}`}>
+            <Link
+              className="primary-button"
+              to={`/profile/orders/${order?.id}`}
+            >
               Mở đơn hàng và vé
             </Link>
           )}

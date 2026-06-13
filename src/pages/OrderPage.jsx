@@ -33,10 +33,10 @@ export const OrdersPage = () => {
   } = useOrders();
 
   return (
-    <section className="user-page">
+    <section className="user-page orders-page">
       <header className="page-header">
         <div>
-          <span className="page-kicker">Đơn hàng</span>
+          <span className="page-kicker">Order</span>
           <h1>Đơn hàng của tôi</h1>
         </div>
         <label className="search-box">
@@ -106,6 +106,10 @@ export const OrderDetailPage = () => {
     setError("");
     try {
       const nextOrder = unwrapData(await orderService.getOrderById(orderId));
+      if (!["pending", "paid"].includes(getOrderStatus(nextOrder))) {
+        navigate("/", { replace: true });
+        return;
+      }
       const bookingResponse = await bookingService.getBookingById(
         nextOrder.booking_id,
       );
@@ -116,7 +120,7 @@ export const OrderDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [orderId]);
+  }, [navigate, orderId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -131,7 +135,7 @@ export const OrderDetailPage = () => {
         order.id,
         "Khách hàng hủy từ trang đơn hàng",
       );
-      await loadOrder();
+      navigate("/", { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, "Không thể hủy đơn hàng."));
     } finally {

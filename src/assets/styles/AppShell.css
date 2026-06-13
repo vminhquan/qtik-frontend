@@ -1,10 +1,8 @@
 .app-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 248px minmax(0, 1fr);
   min-height: 100vh;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--primary-soft) 36%, transparent), transparent 42%),
-    var(--bg-color);
+  background: var(--bg-color);
 }
 
 .app-sidebar {
@@ -14,46 +12,31 @@
   flex-direction: column;
   height: 100vh;
   border-right: 1px solid var(--border-color);
-  padding: 26px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 88%, transparent), color-mix(in srgb, var(--surface-color) 82%, transparent)),
-    var(--bg-elevated);
+  padding: 20px 16px;
+  background: var(--surface-color);
   color: var(--text-color);
-  box-shadow: 18px 0 54px rgba(15, 23, 42, 0.06);
-  backdrop-filter: var(--panel-blur);
-  transition: var(--transition-ui);
-}
-
-.admin-sidebar {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 84%, transparent), color-mix(in srgb, var(--primary-soft) 28%, var(--surface-color))),
-    var(--bg-elevated);
 }
 
 .app-brand {
   display: flex;
+  min-height: 52px;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 36px;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding: 0 8px;
   color: var(--text-strong);
 }
 
 .app-brand-mark {
   display: grid;
-  width: 46px;
-  height: 46px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
   place-items: center;
   border: 1px solid var(--border-color);
-  border-radius: 15px;
+  border-radius: var(--border-radius);
   background: var(--surface-strong);
-  color: #ffffff;
-  font-weight: var(--font-weight-display);
-  box-shadow: var(--box-shadow);
   object-fit: cover;
-}
-
-.admin-sidebar .app-brand-mark {
-  background: var(--surface-strong);
 }
 
 .app-brand strong,
@@ -63,75 +46,92 @@
 
 .app-brand strong {
   color: var(--text-strong);
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-size: 16px;
 }
 
 .app-brand small {
   margin-top: 2px;
   color: var(--text-muted);
-  font-size: 12px;
-  font-weight: var(--font-weight-bold);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
 }
 
 .app-nav {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .app-nav a {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 11px;
   border: 1px solid transparent;
   border-radius: var(--border-radius);
-  padding: 12px 14px;
+  padding: 0 12px;
   color: var(--text-muted);
-  font-weight: var(--font-weight-bold);
-  transition: transform 0.24s ease, background-color 0.24s ease, color 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  transition: var(--transition-ui);
+}
+
+.app-nav a svg {
+  width: 18px;
+  height: 18px;
 }
 
 .app-nav a.active,
 .app-nav a:hover {
-  border-color: color-mix(in srgb, var(--primary-color) 28%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 20%, transparent);
   background: var(--primary-soft);
   color: var(--primary-color);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--primary-color) 10%, transparent);
-  transform: translateX(4px);
 }
 
 .app-user {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   margin-top: auto;
   border-top: 1px solid var(--border-color);
-  padding-top: 18px;
+  padding: 16px 8px 0;
 }
 
 .app-user span {
+  overflow: hidden;
   color: var(--text-strong);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .app-user button {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  padding: 11px 12px;
   background: var(--surface-strong);
   color: var(--text-color);
-  font-weight: var(--font-weight-bold);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.app-user button svg {
+  width: 17px;
+  height: 17px;
 }
 
 .app-user button:hover {
-  border-color: color-mix(in srgb, var(--primary-color) 36%, var(--border-color));
-  color: var(--primary-color);
-  box-shadow: var(--box-shadow);
-  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--danger-color) 35%, var(--border-color));
+  color: var(--danger-color);
 }
 
 .app-main {
   min-width: 0;
-  padding: 34px;
-  animation: fadeSlideIn 0.38s ease both;
+  padding: 28px 32px 48px;
 }
 
 @media (max-width: 860px) {
@@ -144,7 +144,11 @@
     height: auto;
   }
 
+  .app-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .app-main {
-    padding: 22px;
+    padding: 22px 18px 40px;
   }
 }

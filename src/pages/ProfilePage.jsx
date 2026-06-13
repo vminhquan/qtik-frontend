@@ -126,7 +126,6 @@ const ProfileForm = ({ currentUser, updateCurrentUser }) => {
         </span>
         <div>
           <h2>{currentUser?.full_name || "Tài khoản QTIK"}</h2>
-          <p>Thông tin dùng cho đặt vé, nhận xác nhận và hỗ trợ đơn hàng.</p>
         </div>
       </div>
 
@@ -328,14 +327,11 @@ export const ChangePasswordPage = () => {
   };
 
   return (
-    <section className="user-page">
+    <section className="user-page password-page">
       <header className="page-header">
         <div>
           <span className="page-kicker">Security</span>
           <h1>Đổi mật khẩu</h1>
-          <p>
-            Bảo vệ tài khoản QTIK bằng mật khẩu mạnh và xác thực OTP qua email.
-          </p>
         </div>
       </header>
 
@@ -446,7 +442,7 @@ const ProfilePage = () => {
   ].join("-");
 
   return (
-    <section className="user-page">
+    <section className="user-page profile-page">
       <header className="page-header">
         <div>
           <span className="page-kicker">Profile</span>
