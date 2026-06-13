@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
+  CalendarRange,
   Globe2,
   House,
   KeyRound,
@@ -106,9 +107,13 @@ const PublicLayout = () => {
             <House aria-hidden="true" />
             Trang chủ
           </NavLink>
+
           {isAuthenticated ? (
             <>
-              <Link to="/#movie-catalog" onClick={() => setMobileMenuOpen(false)}>
+              <Link
+                to="/#movie-catalog"
+                onClick={() => setMobileMenuOpen(false)}
+              >
                 <Ticket aria-hidden="true" />
                 Đặt vé
               </Link>
@@ -118,6 +123,10 @@ const PublicLayout = () => {
                   Quản trị
                 </NavLink>
               )}
+              <NavLink to="/showtimes" onClick={() => setMobileMenuOpen(false)}>
+                <CalendarRange aria-hidden="true" />
+                Lịch chiếu theo rạp
+              </NavLink>
               <div className="public-account" ref={accountRef}>
                 <button
                   className="public-avatar-button"
@@ -224,6 +233,10 @@ const PublicLayout = () => {
             <Link to="/">
               <House aria-hidden="true" />
               Trang chủ
+            </Link>
+            <Link to="/showtimes">
+              <CalendarRange aria-hidden="true" />
+              Lịch chiếu theo rạp
             </Link>
             <Link to="/#movie-catalog">
               <Ticket aria-hidden="true" />

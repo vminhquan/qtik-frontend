@@ -18,6 +18,7 @@ import ProfilePage, { ChangePasswordPage } from "../pages/ProfilePage";
 import { OrderDetailPage, OrdersPage } from "../pages/OrderPage";
 import RegisterPage from "../pages/RegisterPage";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
+import TheaterSchedulePage from "../pages/TheaterSchedulePage";
 import VerifyOtpPage from "../pages/VerifyOtpPage";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
@@ -31,6 +32,7 @@ const AppRoutes = () => (
   <Routes>
     <Route element={<PublicLayout />}>
       <Route path="/" element={<HomePage />} />
+      <Route path="/showtimes" element={<TheaterSchedulePage />} />
       <Route path="/movies/:id" element={<MovieDetailPage />} />
       <Route path="/booking" element={<Navigate to="/#movie-catalog" replace />} />
       <Route path="/booking/movie/:filmId" element={<Navigate to="/#movie-catalog" replace />} />
