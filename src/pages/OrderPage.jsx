@@ -30,7 +30,7 @@ export const OrdersPage = () => {
     setPage,
     setSearch,
     refetch,
-  } = useOrders();
+  } = useOrders({ initialLimit: 5 });
 
   return (
     <section className="user-page orders-page">
@@ -44,7 +44,7 @@ export const OrdersPage = () => {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Mã đơn, trạng thái..."
+            placeholder="Nhập tên phim..."
           />
         </label>
       </header>

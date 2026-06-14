@@ -123,7 +123,7 @@ const MovieManagementPage = () => {
               setPage(1);
               setSearch(event.target.value);
             }}
-            placeholder="Tên phim, thể loại..."
+            placeholder="Nhập tên phim..."
           />
         </label>
       </header>

@@ -1,20 +1,36 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { movieService } from "../api/movieService";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
-import { buildNextPageProbeParams, resolvePaginatedResponse } from "../utils/paginationHelper";
+import { normalizePaginatedResponse } from "../utils/paginationHelper";
 
 export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = false } = {}) => {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
   const [search, setSearch] = useState("");
+  const [requestSearch, setRequestSearch] = useState("");
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const requestIdRef = useRef(0);
 
-  const params = useMemo(() => buildListParams({ page, limit, search }), [page, limit, search]);
+  const params = useMemo(
+    () => buildListParams({ page, limit, search: requestSearch }),
+    [limit, page, requestSearch],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setPage(1);
+      setRequestSearch(search.trim().replace(/\s+/g, " "));
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
   const fetchMovies = useCallback(async () => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
     setLoading(true);
     setError("");
 
@@ -23,16 +39,12 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
         params,
         publicMode ? { skipAuth: true, skipAuthRedirect: true } : {}
       );
-      const { items, total: nextTotal } = await resolvePaginatedResponse({
+      if (requestIdRef.current !== requestId) return;
+
+      const { items, total: nextTotal } = normalizePaginatedResponse(
         response,
-        page,
-        limit,
-        listKeys: ["films", "movies"],
-        probeNextPage: () => movieService.getMovies(
-          buildNextPageProbeParams(params, page, limit),
-          publicMode ? { skipAuth: true, skipAuthRedirect: true } : {}
-        ),
-      });
+        ["films", "movies"],
+      );
 
       if (page > 1 && items.length === 0) {
         setPage((currentPage) => Math.max(currentPage - 1, 1));
@@ -40,13 +52,14 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
       }
 
       setMovies(items);
-      setTotal(nextTotal);
+      setTotal(nextTotal ?? items.length);
     } catch (err) {
+      if (requestIdRef.current !== requestId) return;
       setError(getErrorMessage(err, "Không thể tải danh sách phim."));
     } finally {
-      setLoading(false);
+      if (requestIdRef.current === requestId) setLoading(false);
     }
-  }, [limit, page, params, publicMode]);
+  }, [page, params, publicMode]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -54,7 +67,6 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
   }, [fetchMovies]);
 
   const updateSearch = useCallback((value) => {
-    setPage(1);
     setSearch(value);
   }, []);
 

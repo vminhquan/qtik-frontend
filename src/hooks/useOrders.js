@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { orderService } from "../api/orderService";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
 import {
   buildNextPageProbeParams,
+  normalizePaginatedResponse,
   resolvePaginatedResponse,
 } from "../utils/paginationHelper";
 
@@ -18,16 +19,36 @@ export const useOrders = ({
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
   const [search, setSearch] = useState("");
+  const [requestSearch, setRequestSearch] = useState("");
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const requestIdRef = useRef(0);
 
   const params = useMemo(
-    () => buildListParams({ page, limit }),
-    [page, limit]
+    () =>
+      buildListParams({
+        page,
+        limit,
+        search: admin ? "" : requestSearch,
+      }),
+    [admin, limit, page, requestSearch],
   );
 
+  useEffect(() => {
+    if (admin) return undefined;
+
+    const timer = window.setTimeout(() => {
+      setPage(1);
+      setRequestSearch(search.trim().replace(/\s+/g, " "));
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [admin, search]);
+
   const fetchOrders = useCallback(async () => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
     setLoading(true);
     setError("");
 
@@ -37,14 +58,19 @@ export const useOrders = ({
           ? orderService.getAllOrders(nextParams)
           : orderService.getMyOrders(nextParams);
       const response = await request(params);
-      const { items, total: nextTotal } = await resolvePaginatedResponse({
-        response,
-        page,
-        limit,
-        listKeys: ["orders"],
-        probeNextPage: () =>
-          request(buildNextPageProbeParams(params, page, limit)),
-      });
+      const result = admin
+        ? await resolvePaginatedResponse({
+            response,
+            page,
+            limit,
+            listKeys: ["orders"],
+            probeNextPage: () =>
+              request(buildNextPageProbeParams(params, page, limit)),
+          })
+        : normalizePaginatedResponse(response, ["orders"]);
+      if (requestIdRef.current !== requestId) return;
+
+      const { items, total: nextTotal } = result;
 
       if (page > 1 && items.length === 0) {
         setPage((current) => Math.max(current - 1, 1));
@@ -55,13 +81,12 @@ export const useOrders = ({
         ? items
         : items.filter(isVisibleUserOrder);
       setOrders(visibleItems);
-      setTotal(
-        admin ? nextTotal : Math.max(nextTotal - (items.length - visibleItems.length), 0),
-      );
+      setTotal(nextTotal ?? visibleItems.length);
     } catch (err) {
+      if (requestIdRef.current !== requestId) return;
       setError(getErrorMessage(err, "Không thể tải danh sách đơn hàng."));
     } finally {
-      setLoading(false);
+      if (requestIdRef.current === requestId) setLoading(false);
     }
   }, [admin, limit, page, params]);
 
@@ -71,6 +96,8 @@ export const useOrders = ({
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
+    if (!admin) return orders;
+
     const keyword = search.trim().toLowerCase();
     if (!keyword) return orders;
     return orders.filter((order) =>
@@ -87,12 +114,12 @@ export const useOrders = ({
         ...(order.seat_codes || []),
       ].some((value) => String(value || "").toLowerCase().includes(keyword))
     );
-  }, [orders, search]);
+  }, [admin, orders, search]);
 
   const updateSearch = useCallback((value) => {
-    setPage(1);
+    if (admin) setPage(1);
     setSearch(value);
-  }, []);
+  }, [admin]);
 
   return {
     orders: filteredOrders,
