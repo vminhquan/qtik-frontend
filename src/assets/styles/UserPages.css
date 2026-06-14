@@ -396,6 +396,11 @@
   max-width: 1120px;
 }
 
+.payment-page > .page-header {
+  justify-content: center;
+  text-align: center;
+}
+
 .payment-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
