@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   CalendarRange,
+  Clapperboard,
   Globe2,
   House,
   KeyRound,
@@ -107,16 +108,13 @@ const PublicLayout = () => {
             <House aria-hidden="true" />
             Trang chủ
           </NavLink>
+          <NavLink to="/movies" onClick={() => setMobileMenuOpen(false)}>
+            <Clapperboard aria-hidden="true" />
+            Tất cả phim
+          </NavLink>
 
           {isAuthenticated ? (
             <>
-              <Link
-                to="/#movie-catalog"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Ticket aria-hidden="true" />
-                Đặt vé
-              </Link>
               {isAdmin && (
                 <NavLink to="/admin" onClick={() => setMobileMenuOpen(false)}>
                   <LayoutDashboard aria-hidden="true" />
@@ -238,9 +236,9 @@ const PublicLayout = () => {
               <CalendarRange aria-hidden="true" />
               Lịch chiếu theo rạp
             </Link>
-            <Link to="/#movie-catalog">
-              <Ticket aria-hidden="true" />
-              Đặt vé
+            <Link to="/movies">
+              <Clapperboard aria-hidden="true" />
+              Tất cả phim
             </Link>
           </nav>
 

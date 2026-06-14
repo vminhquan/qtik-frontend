@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Clock3, Search, Ticket, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Clock3, Ticket, X } from "lucide-react";
 import { eventService } from "../api/eventService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
-import Pagination from "../components/Pagination";
 import useMovies from "../hooks/useMovies";
 import { getErrorMessage } from "../utils/errorHandler";
 import { isShowtimeVisible } from "../utils/showtimeHelper";
@@ -20,27 +19,11 @@ const getMoviePoster = (movie) =>
   movie?.banner_url ||
   movie?.bannerUrl ||
   heroImage;
-const getMovieDescription = (movie) =>
-  movie?.description ||
-  movie?.overview ||
-  movie?.summary ||
-  movie?.content ||
-  movie?.synopsis ||
-  "";
 const getReleaseDate = (movie) =>
   movie?.release_date ||
   movie?.releaseDate ||
   movie?.premiere_date ||
   movie?.premiereDate;
-const getMovieDuration = (movie) =>
-  movie?.duration ||
-  movie?.duration_minutes ||
-  movie?.runtime ||
-  movie?.runtime_minutes;
-const formatMovieDuration = (movie) => {
-  const duration = getMovieDuration(movie);
-  return duration ? `${duration} phút` : "Thời lượng đang cập nhật";
-};
 const formatReleaseDate = (value) => {
   if (!value) return "Ngày khởi chiếu đang cập nhật";
   const date = new Date(value);
@@ -119,22 +102,11 @@ const getAvailableSeatCount = (event) =>
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const showtimeRequestRef = useRef(0);
-  const {
-    movies,
-    page,
-    limit,
-    total,
-    search,
-    loading,
-    error,
-    setPage,
-    setSearch,
-    refetch,
-  } = useMovies({
-    initialLimit: 12,
+  const { movies, loading, error, refetch } = useMovies({
+    initialLimit: 8,
     publicMode: true,
+    filters: { is_hot: true },
   });
   const [heroIndex, setHeroIndex] = useState(0);
   const [dragStartX, setDragStartX] = useState(null);
@@ -182,18 +154,6 @@ const HomePage = () => {
 
     return () => window.clearTimeout(timer);
   }, [heroMovies.length, safeHeroIndex]);
-
-  useEffect(() => {
-    if (location.hash !== "#movie-catalog") return;
-
-    const timer = window.setTimeout(() => {
-      document
-        .getElementById("movie-catalog")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 0);
-
-    return () => window.clearTimeout(timer);
-  }, [location.hash]);
 
   useEffect(() => {
     if (!showtimeMovie) return undefined;
@@ -266,9 +226,7 @@ const HomePage = () => {
       if (showtimeRequestRef.current !== requestId) return;
       setShowtimeEvents(nextEvents);
       setSelectedShowtimeDate(
-        nextEvents.length
-          ? getDateKey(getEventStartTime(nextEvents[0]))
-          : "",
+        nextEvents.length ? getDateKey(getEventStartTime(nextEvents[0])) : "",
       );
     } catch (error) {
       if (showtimeRequestRef.current !== requestId) return;
@@ -293,13 +251,6 @@ const HomePage = () => {
   const handleHeroShowtimes = () => {
     if (!heroMovie) return;
     openMovieShowtimes(heroMovie);
-  };
-
-  const handlePageChange = (nextPage) => {
-    setPage(nextPage);
-    document
-      .getElementById("movie-catalog")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -335,14 +286,7 @@ const HomePage = () => {
             {formatReleaseDate(getReleaseDate(heroMovie))}
           </span>
           <h1>{heroMovie ? movieTitle(heroMovie) : "QTIK Cinema"}</h1>
-          <small className="movie-duration-label">
-            {heroMovie
-              ? formatMovieDuration(heroMovie)
-              : "Thời lượng đang cập nhật"}
-          </small>
-          <p>
-            {getMovieDescription(heroMovie) || "Mô tả phim đang được cập nhật."}
-          </p>
+
           <button
             className="primary-button"
             type="button"
@@ -372,27 +316,15 @@ const HomePage = () => {
       <section className="movie-section" id="movie-catalog">
         <header className="page-header">
           <div>
-            <span className="page-kicker">Movie showing</span>
-            <h1>Chọn phim bạn muốn xem</h1>
+            <h1 className="page-kicker">Hot movies</h1>
           </div>
-          <label className="search-box">
-            <span>Tìm phim</span>
-            <div className="search-control">
-              <Search aria-hidden="true" />
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Nhập tên phim..."
-              />
-            </div>
-          </label>
         </header>
 
         {error && <ErrorState message={error} onRetry={refetch} />}
         {loading ? (
           <LoadingState label="Đang tải phim..." />
         ) : (
-          <div className="public-movie-grid">
+          <div className="public-movie-grid home-hot-movie-grid">
             {movies.map((movie, index) => {
               const movieId = getMovieId(movie);
 
@@ -421,20 +353,12 @@ const HomePage = () => {
                         </span>
                       )}
                     </div>
-                    <h2>{movieTitle(movie)}</h2>
-                    <div className="movie-card-meta">
-                      <span>
-                        <strong>Thể loại:</strong>
-                        {movie.genre || "Đang cập nhật"}
-                      </span>
-                      <span>
-                        <strong>Thời lượng:</strong>
-                        {formatMovieDuration(movie)}
-                      </span>
-                    </div>
+                    <span className="home-movie-release">
+                      {formatReleaseDate(getReleaseDate(movie))}
+                    </span>
                     <span className="movie-card-cta">
                       <Ticket aria-hidden="true" />
-                      MUA VÉ
+                      Mua vé
                     </span>
                   </button>
                 </article>
@@ -442,13 +366,6 @@ const HomePage = () => {
             })}
           </div>
         )}
-
-        <Pagination
-          page={page}
-          limit={limit}
-          total={total}
-          onPageChange={handlePageChange}
-        />
       </section>
 
       {showtimeMovie && (

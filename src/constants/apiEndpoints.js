@@ -31,6 +31,7 @@ export const EVENT_API = {
 export const MOVIE_API = {
   CREATE: "/films/",
   GET_ALL: "/films/",
+  HOT: "/films/hot",
   DETAIL: (filmId) => `/films/${filmId}`,
 };
 

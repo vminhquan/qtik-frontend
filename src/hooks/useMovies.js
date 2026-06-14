@@ -3,7 +3,12 @@ import { movieService } from "../api/movieService";
 import { buildListParams, getErrorMessage } from "../utils/errorHandler";
 import { normalizePaginatedResponse } from "../utils/paginationHelper";
 
-export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = false } = {}) => {
+export const useMovies = ({
+  initialPage = 1,
+  initialLimit = 8,
+  publicMode = false,
+  filters,
+} = {}) => {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(initialPage);
   const [limit, setLimit] = useState(initialLimit);
@@ -13,10 +18,18 @@ export const useMovies = ({ initialPage = 1, initialLimit = 8, publicMode = fals
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const requestIdRef = useRef(0);
+  const filtersKey = JSON.stringify(filters || {});
+  const requestFilters = useMemo(() => JSON.parse(filtersKey), [filtersKey]);
 
   const params = useMemo(
-    () => buildListParams({ page, limit, search: requestSearch }),
-    [limit, page, requestSearch],
+    () =>
+      buildListParams({
+        page,
+        limit,
+        search: requestSearch,
+        filters: requestFilters,
+      }),
+    [limit, page, requestFilters, requestSearch],
   );
 
   useEffect(() => {

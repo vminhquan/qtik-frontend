@@ -10,8 +10,8 @@ import BookingPage from "../pages/BookingPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
-import MovieDetailPage from "../pages/MovieDetailPage";
 import MovieManagementPage from "../pages/MovieManagementPage";
+import MoviesPage from "../pages/MoviesPage";
 import PaymentPage from "../pages/PaymentPage";
 import PaymentResultPage from "../pages/PaymentResultPage";
 import ProfilePage, { ChangePasswordPage } from "../pages/ProfilePage";
@@ -32,8 +32,9 @@ const AppRoutes = () => (
   <Routes>
     <Route element={<PublicLayout />}>
       <Route path="/" element={<HomePage />} />
+      <Route path="/movies" element={<MoviesPage />} />
       <Route path="/showtimes" element={<TheaterSchedulePage />} />
-      <Route path="/movies/:id" element={<MovieDetailPage />} />
+      <Route path="/movies/:id" element={<Navigate to="/movies" replace />} />
       <Route path="/booking" element={<Navigate to="/#movie-catalog" replace />} />
       <Route path="/booking/movie/:filmId" element={<Navigate to="/#movie-catalog" replace />} />
     </Route>

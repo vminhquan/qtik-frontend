@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { movieService } from "../api/movieService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
 import Pagination from "../components/Pagination";
@@ -13,9 +14,16 @@ const emptyForm = {
   release_date: "",
   poster_url: "",
   description: "",
+  is_hot: false,
 };
 
 const getMovieId = (movie) => movie.id || movie._id || movie.film_id;
+const MAX_HOT_MOVIES = 8;
+const normalizeMovies = (response) => {
+  if (Array.isArray(response)) return response;
+  const payload = response?.data || response;
+  return Array.isArray(payload) ? payload : payload?.items || [];
+};
 
 const MovieManagementPage = () => {
   const {
@@ -38,6 +46,28 @@ const MovieManagementPage = () => {
   const [editingMovie, setEditingMovie] = useState(null);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [hotMovieIds, setHotMovieIds] = useState(new Set());
+
+  const loadHotMovies = useCallback(async () => {
+    try {
+      const response = await movieService.getHotMovies();
+      setHotMovieIds(
+        new Set(
+          normalizeMovies(response)
+            .map(getMovieId)
+            .filter(Boolean)
+            .map(String),
+        ),
+      );
+    } catch (err) {
+      setFormError(getErrorMessage(err, "Không thể tải danh sách phim hot."));
+    }
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadHotMovies();
+  }, [loadHotMovies]);
 
   const title = useMemo(
     () =>
@@ -48,8 +78,11 @@ const MovieManagementPage = () => {
   );
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { checked, name, type, value } = event.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const resetForm = () => {
@@ -59,6 +92,7 @@ const MovieManagementPage = () => {
   };
 
   const handleEdit = (movie) => {
+    const movieId = String(getMovieId(movie));
     setEditingMovie(movie);
     setForm({
       title: movie.title || movie.name || "",
@@ -67,6 +101,7 @@ const MovieManagementPage = () => {
       release_date: movie.release_date || movie.releaseDate || "",
       poster_url: movie.poster_url || movie.posterUrl || "",
       description: movie.description || "",
+      is_hot: hotMovieIds.has(movieId),
     });
   };
 
@@ -87,6 +122,7 @@ const MovieManagementPage = () => {
         await createMovie(payload);
       }
 
+      await loadHotMovies();
       resetForm();
     } catch (err) {
       setFormError(getErrorMessage(err, "Không thể lưu thông tin phim."));
@@ -94,6 +130,12 @@ const MovieManagementPage = () => {
       setSaving(false);
     }
   };
+
+  const editingMovieIsHot = editingMovie
+    ? hotMovieIds.has(String(getMovieId(editingMovie)))
+    : false;
+  const hotLimitReached =
+    hotMovieIds.size >= MAX_HOT_MOVIES && !editingMovieIsHot;
 
   const handleDelete = async (movie) => {
     const movieTitle = movie.title || movie.name || "phim này";
@@ -182,6 +224,23 @@ const MovieManagementPage = () => {
               rows="4"
             />
           </label>
+          <label className="movie-hot-toggle">
+            <input
+              checked={form.is_hot}
+              disabled={hotLimitReached}
+              name="is_hot"
+              type="checkbox"
+              onChange={handleChange}
+            />
+            <span>
+              <strong>
+                Phim hot ({hotMovieIds.size}/{MAX_HOT_MOVIES})
+              </strong>
+              {hotLimitReached
+                ? "Đã đủ 8 phim. Hãy bỏ chọn một phim hot và lưu trước."
+                : "Hiển thị phim này trong khu vực nổi bật ở trang chủ"}
+            </span>
+          </label>
 
           <div className="form-actions">
             <button className="primary-button" type="submit" disabled={saving}>
@@ -216,7 +275,12 @@ const MovieManagementPage = () => {
                     )}
                   </div>
                   <div className="movie-card-body">
-                    <h3>{movie.title || movie.name}</h3>
+                    <div className="movie-card-title">
+                      <h3>{movie.title || movie.name}</h3>
+                      {hotMovieIds.has(String(getMovieId(movie))) && (
+                        <span>HOT</span>
+                      )}
+                    </div>
                     <p>{movie.genre || "Chưa có thể loại"}</p>
                     <small>
                       {movie.duration
