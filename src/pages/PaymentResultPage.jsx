@@ -175,7 +175,7 @@ const PaymentResultPage = ({ cancelled = false }) => {
   const title = isPaid
     ? "Thanh toán thành công"
     : isCancelled
-      ? "Thanh toán đã hủy"
+      ? "Đã hủy thanh toán và vé"
       : isFailed
         ? "Thanh toán thất bại"
         : isExpired
@@ -190,6 +190,7 @@ const PaymentResultPage = ({ cancelled = false }) => {
         </span>
         <span className="page-kicker">Kết quả thanh toán</span>
         <h1>{title}</h1>
+        {isCancelled}
         {error && <ErrorState message={error} onRetry={loadResult} />}
 
         {order && (
@@ -222,25 +223,54 @@ const PaymentResultPage = ({ cancelled = false }) => {
         )}
 
         <div className="payment-actions">
-          <Link className="ghost-button" to="/profile/orders">
-            Danh sách đơn hàng
-          </Link>
-          {isPaid ? (
-            <Link className="primary-button" to={`/profile/orders/${order.id}`}>
-              Xem đơn hàng và vé
-            </Link>
+          {isCancelled ? (
+            <>
+              <Link className="ghost-button" to="/">
+                Về trang chủ
+              </Link>
+              <Link className="primary-button" to="/#movie-catalog">
+                Đặt vé khác
+              </Link>
+            </>
+          ) : isPaid ? (
+            <>
+              <Link className="ghost-button" to="/profile/orders">
+                Danh sách đơn hàng
+              </Link>
+              <Link
+                className="primary-button"
+                to={`/profile/orders/${order.id}`}
+              >
+                Xem đơn hàng và vé
+              </Link>
+            </>
           ) : order?.id && orderStatus === "pending" ? (
-            <Link className="primary-button" to={`/payment/${order.id}`}>
-              Quay lại thanh toán
-            </Link>
+            <>
+              <Link className="ghost-button" to="/profile/orders">
+                Danh sách đơn hàng
+              </Link>
+              <Link className="primary-button" to={`/payment/${order.id}`}>
+                Quay lại thanh toán
+              </Link>
+            </>
           ) : order?.id ? (
-            <Link className="primary-button" to={`/profile/orders/${order.id}`}>
-              Xem chi tiết đơn
-            </Link>
+            <>
+              <Link className="ghost-button" to="/">
+                Về trang chủ
+              </Link>
+              <Link className="primary-button" to="/#movie-catalog">
+                Chọn suất chiếu
+              </Link>
+            </>
           ) : (
-            <Link className="primary-button" to="/booking">
-              Chọn suất chiếu
-            </Link>
+            <>
+              <Link className="ghost-button" to="/">
+                Về trang chủ
+              </Link>
+              <Link className="primary-button" to="/#movie-catalog">
+                Chọn suất chiếu
+              </Link>
+            </>
           )}
         </div>
       </div>

@@ -6,6 +6,12 @@
   background: var(--bg-color);
 }
 
+.public-layout > main,
+.public-layout > section {
+  width: 100%;
+  flex: 0 0 auto;
+}
+
 .public-header {
   position: sticky;
   top: 0;
