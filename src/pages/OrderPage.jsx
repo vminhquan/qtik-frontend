@@ -63,7 +63,9 @@ export const OrdersPage = () => {
                 key={order.id}
               >
                 <span>
-                  <strong>Đơn #{order.order_code}</strong>
+                  <strong>
+                    Vé Phim {order.movie_title || "Đang cập nhật"}
+                  </strong>
                   <small>
                     {formatDateTime(order.created_at)} ·{" "}
                     {order.ticket_count || 0} vé
