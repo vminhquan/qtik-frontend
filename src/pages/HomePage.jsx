@@ -116,8 +116,6 @@ const getAvailableSeatCount = (event) =>
   event?.availableSeats ??
   event?.remaining_seats ??
   event?.seats_available;
-const getSeatStatus = (seat) =>
-  String(seat?.status?.value || seat?.status || "").toLowerCase();
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -247,8 +245,8 @@ const HomePage = () => {
     setLoadingShowtimes(true);
 
     try {
-      const response = await eventService.getEvents(
-        { film_id: movieId, movie_id: movieId, limit: 100 },
+      const response = await eventService.getSchedule(
+        { film_id: movieId, limit: 100 },
         { skipAuth: true, skipAuthRedirect: true },
       );
       if (showtimeRequestRef.current !== requestId) return;
@@ -265,33 +263,11 @@ const HomePage = () => {
             new Date(getEventStartTime(right)).getTime(),
         );
 
-      const eventsWithAvailability = await Promise.all(
-        nextEvents.map(async (event) => {
-          const existingCount = getAvailableSeatCount(event);
-          if (existingCount != null) {
-            return { ...event, availableSeatCount: existingCount };
-          }
-
-          try {
-            const seatResponse = await eventService.getEventSeats(
-              getEventId(event),
-              { skipAuth: true, skipAuthRedirect: true },
-            );
-            const availableSeatCount = normalizeList(seatResponse).filter(
-              (seat) => getSeatStatus(seat) === "available",
-            ).length;
-            return { ...event, availableSeatCount };
-          } catch {
-            return event;
-          }
-        }),
-      );
-
       if (showtimeRequestRef.current !== requestId) return;
-      setShowtimeEvents(eventsWithAvailability);
+      setShowtimeEvents(nextEvents);
       setSelectedShowtimeDate(
-        eventsWithAvailability.length
-          ? getDateKey(getEventStartTime(eventsWithAvailability[0]))
+        nextEvents.length
+          ? getDateKey(getEventStartTime(nextEvents[0]))
           : "",
       );
     } catch (error) {

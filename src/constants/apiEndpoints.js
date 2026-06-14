@@ -23,6 +23,7 @@ export const ROOM_API = {
 export const EVENT_API = {
   CREATE: "/events/",
   GET_ALL: "/events/",
+  SCHEDULE: "/events/schedule",
   DETAIL: (eventId) => `/events/${eventId}`,
   SEATS: (eventId) => `/events/${eventId}/seats`,
 };

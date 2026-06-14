@@ -9,8 +9,6 @@ import {
   Tag,
 } from "lucide-react";
 import { eventService } from "../api/eventService";
-import { movieRoomService } from "../api/movieRoomService";
-import { movieService } from "../api/movieService";
 import ErrorState from "../components/ErrorState";
 import LoadingState from "../components/LoadingState";
 import { getErrorMessage } from "../utils/errorHandler";
@@ -31,7 +29,6 @@ const getFilmId = (event) =>
   event?.film_id || event?.movie_id || event?.film?.id || event?.movie?.id;
 const getRoomId = (event) =>
   event?.room_id || event?.room?.id || event?.rooms?.id;
-const getMovieId = (movie) => movie?.id || movie?._id || movie?.film_id;
 const getRoomEntityId = (room) => room?.id || room?._id || room?.room_id;
 const getStartTime = (event) =>
   event?.start_time ||
@@ -75,8 +72,6 @@ const getMovieDuration = (movie) =>
   movie?.duration_minutes ||
   movie?.runtime ||
   movie?.runtime_minutes;
-const getSeatStatus = (seat) =>
-  String(seat?.status?.value || seat?.status || "").toLowerCase();
 const buildDateOptions = (events, roomId) => {
   const dates = new Map();
   events
@@ -99,7 +94,6 @@ const TheaterSchedulePage = () => {
   const [movieMap, setMovieMap] = useState({});
   const [selectedRoomId, setSelectedRoomId] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [seatCounts, setSeatCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -108,13 +102,10 @@ const TheaterSchedulePage = () => {
     setError("");
     try {
       const requestConfig = { skipAuth: true, skipAuthRedirect: true };
-      const [roomResponse, movieResponse, eventResponse] = await Promise.all([
-        movieRoomService.getRooms({ limit: 100 }, requestConfig),
-        movieService.getMovies({ limit: 200 }, requestConfig),
-        eventService.getEvents({ limit: 100 }, requestConfig),
-      ]);
-      const nextRooms = normalizeList(roomResponse, ["rooms"]);
-      const movies = normalizeList(movieResponse, ["films", "movies"]);
+      const eventResponse = await eventService.getSchedule(
+        { limit: 500 },
+        requestConfig,
+      );
       const nextEvents = normalizeList(eventResponse, ["events"])
         .filter((event) => isShowtimeVisible(event))
         .sort(
@@ -122,11 +113,18 @@ const TheaterSchedulePage = () => {
             new Date(getStartTime(left)).getTime() -
             new Date(getStartTime(right)).getTime(),
         );
-      const nextMovieMap = movies.reduce((map, movie) => {
-        const movieId = getMovieId(movie);
-        if (movieId) map[String(movieId)] = movie;
-        return map;
-      }, {});
+      const nextRooms = [
+        ...new Map(
+          nextEvents
+            .filter((event) => event?.room)
+            .map((event) => [String(getRoomId(event)), event.room]),
+        ).values(),
+      ];
+      const nextMovieMap = Object.fromEntries(
+        nextEvents
+          .filter((event) => event?.film)
+          .map((event) => [String(getFilmId(event)), event.film]),
+      );
       const initialRoomId =
         getRoomEntityId(nextRooms[0]) || getRoomId(nextEvents[0]) || "";
       const initialDates = buildDateOptions(nextEvents, initialRoomId);
@@ -174,44 +172,6 @@ const TheaterSchedulePage = () => {
   const selectedRoom = rooms.find(
     (room) => String(getRoomEntityId(room)) === String(selectedRoomId),
   );
-
-  useEffect(() => {
-    if (!selectedEvents.length) return undefined;
-
-    let active = true;
-    const missingEvents = selectedEvents.filter(
-      (event) => seatCounts[getEventId(event)] === undefined,
-    );
-    if (!missingEvents.length) return undefined;
-
-    Promise.all(
-      missingEvents.map(async (event) => {
-        try {
-          const response = await eventService.getEventSeats(getEventId(event), {
-            skipAuth: true,
-            skipAuthRedirect: true,
-          });
-          const seats = normalizeList(response, ["seats"]);
-          return [
-            getEventId(event),
-            seats.filter((seat) => getSeatStatus(seat) === "available").length,
-          ];
-        } catch {
-          return [getEventId(event), null];
-        }
-      }),
-    ).then((entries) => {
-      if (!active) return;
-      setSeatCounts((previous) => ({
-        ...previous,
-        ...Object.fromEntries(entries),
-      }));
-    });
-
-    return () => {
-      active = false;
-    };
-  }, [seatCounts, selectedEvents]);
 
   const handleRoomChange = (event) => {
     const roomId = event.target.value;
@@ -317,7 +277,7 @@ const TheaterSchedulePage = () => {
                     <div className="schedule-times">
                       {filmEvents.map((event) => {
                         const eventId = getEventId(event);
-                        const seatCount = seatCounts[eventId];
+                        const seatCount = event.available_seats;
                         return (
                           <button
                             className={
@@ -331,9 +291,7 @@ const TheaterSchedulePage = () => {
                             <small>
                               {seatCount != null
                                 ? `${seatCount} ghế trống`
-                                : seatCount === undefined
-                                  ? "Đang tải ghế..."
-                                  : "Xem ghế"}
+                                : "Xem ghế"}
                             </small>
                           </button>
                         );
