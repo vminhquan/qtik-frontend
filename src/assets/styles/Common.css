@@ -55,53 +55,39 @@
 
 .pagination {
   display: grid;
-  grid-template-columns: 38px auto 38px auto;
+  grid-template-columns: 40px auto 40px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 14px;
   margin-top: 24px;
   color: var(--text-color);
 }
 
-.pagination-pages {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
 .pagination button {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   place-items: center;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 0;
   background: var(--surface-strong);
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: var(--font-weight-semibold);
+  color: var(--text-color);
   cursor: pointer;
   transition: var(--transition-ui);
 }
 
-.pagination-nav {
-  font-size: 25px;
-  line-height: 1;
+.pagination-nav svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2;
 }
 
-.pagination button:hover:not(:disabled):not(.active) {
+.pagination button:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--primary-color) 44%, var(--border-color));
   background: var(--primary-soft);
   color: var(--primary-color);
   transform: translateY(-2px);
-}
-
-.pagination button.active {
-  border-color: var(--primary-color);
-  background: var(--primary-color);
-  color: var(--primary-contrast);
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color) 24%, transparent);
 }
 
 .pagination button:disabled {
@@ -109,46 +95,23 @@
   opacity: 0.42;
 }
 
-.pagination-ellipsis {
-  display: grid;
-  width: 28px;
-  height: 38px;
-  place-items: center;
-  color: var(--text-muted);
-}
-
 .pagination-summary {
-  margin-left: 6px;
   color: var(--text-muted);
   font-size: 13px;
   font-weight: var(--font-weight-medium);
+  text-align: center;
   white-space: nowrap;
 }
 
 @media (max-width: 520px) {
   .pagination {
-    grid-template-columns: 36px auto 36px;
-    gap: 5px;
-  }
-
-  .pagination-pages {
-    gap: 3px;
+    grid-template-columns: 38px auto 38px;
+    gap: 10px;
   }
 
   .pagination button {
-    width: 36px;
-    height: 36px;
-  }
-
-  .pagination-ellipsis {
-    width: 18px;
-    height: 36px;
-  }
-
-  .pagination-summary {
-    grid-column: 1 / -1;
-    margin: 2px 0 0;
-    text-align: center;
+    width: 38px;
+    height: 38px;
   }
 }
 
